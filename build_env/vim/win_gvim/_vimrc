@@ -1,0 +1,77 @@
+syntax on           "각 파일의 성격(?)에 맞게 색깔로 보여 준다.
+set cindent         "C언어를 작성할때 자동 indentition
+set autoindent      "자동으로 들여쓰기
+set tabstop=4       " Tab size
+set nu              " linenumber
+colorscheme classic_nobold
+
+"set ignorecase     " 검색,편집 치환시에 대소문자 구분하지 않음
+set smartindent     " 코딩 할때 if, for 같은 것을 입력 하고 다음 라인으로 이동시 들려쓰기
+set shiftwidth=4    " smartindent 사용시, 자동 들여쓰기 size
+set expandtab      " [tab] 키를 입력 하였을때 tab에 대당하는 space 만큼 이동(파이썬 코딩시)
+"set encoding=utf-8  " 컴퓨터 또는 개발 언어에서 기본 인코딩 타입
+"set list            " tab, 개행을 보여줌
+"set fileencodings=euc-kr
+"set fileformats=unix       " unix 형식 저장 - ^V
+"set fileformats=dox        " dox 형식 저장 - ^V^M
+
+set incsearch       " 키워드를 입력할때 검색하는 점진 검색 사용
+set hlsearch        " 검색어 강조 기능
+
+"source $VIMRUNTIME/vimrc_example.vim
+"source $VIMRUNTIME/mswin.vim
+"behave mswin
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"   NERDTree
+let NERDTreeIgnore=['.o$']
+map <F5> :NERDTreeToggle<CR>
+
+"   Windows movement
+map <C-J> <c-w><c-j>
+map <C-K> <c-w><c-k>
+map <C-H> <c-w><c-h>
+map <C-L> <c-w><c-l>
+
+imap <C-J> <ESC><c-w><c-j>
+imap <C-K> <ESC><c-w><c-k>
+imap <C-H> <ESC><c-w><c-h>
+imap <C-L> <ESC><c-w><c-l>
+
+"   Tab related key map
+map <F2> :tabnew<CR>
+map <F3> :tabprev<CR>
+map <F4> :tabnext<CR>
+imap <F2> <ESC>:tabnew
+imap <F3> <ESC>:tabprev<CR>
+imap <F4> <ESC>:tabnext<CR>
+
+"   Dictionary & Search
+map <C-F8> <ESC> :!C:\Users\again4you\AppData\Local\Google\Chrome\Application\chrome.exe http://engdic.daum.net/dicen/search.do?q=<cword> <CR><CR>
+map <F8> <ESC> :!C:\Users\again4you\AppData\Local\Google\Chrome\Application\chrome.exe http://www.google.co.kr/search?q=<cword> <CR><CR>
+map <S-C-F8> <ESC> :!C:\Users\again4you\AppData\Local\Google\Chrome\Application\chrome.exe http://www.google.co.kr/search?q=man+<cword> <CR><CR>
+
+imap <C-F8> <ESC> :!C:\Users\again4you\AppData\Local\Google\Chrome\Application\chrome.exe http://engdic.daum.net/dicen/search.do?q=<cword> <CR><CR>
+imap <F8> <ESC> :!C:\Users\again4you\AppData\Local\Google\Chrome\Application\chrome.exe http://www.google.co.kr/search?q=<cword> <CR><CR>
+imap <S-C-F8> <ESC> :!C:\Users\again4you\AppData\Local\Google\Chrome\Application\chrome.exe http://www.google.co.kr/search?q=man+<cword> <CR><CR>
+
+"   Editing
+map <F7> [{v%zf     " folding
+map <C-F7> zo       " unfolding
+
+"   Search
+"map <F9> <ESC>:TaskList<CR>
+"imap <F9> <ESC>:TaskList<CR>
+"map <C-F9> <ESC>:CompView<CR>
+"imap <C-F9> <ESC>:CompView<CR>
+
+"   Save & Close
+imap <F11> <ESC>:wqa<CR>
+map <F11> :wqa<CR>
+
+imap <F12> <ESC>:qa!<CR>
+map <F12> :qa!<CR>
+
+"	Tasklist
+"map <C-S-T> :TaskList<CR>   "http://juan.axisym3.net/vim-plugins/#tasklist
+
