@@ -10,6 +10,7 @@
 	git config --global --list
 
 
+
 [how to clone the git repogitory]
 
 	git remote add origin git@github.com:again4you/sj_toy_proj.git
