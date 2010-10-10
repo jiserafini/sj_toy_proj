@@ -18,9 +18,10 @@ set expandtab      " [tab] 키를 입력 하였을때 tab에 대당하는 space 만큼 이동(파�
 set incsearch       " 키워드를 입력할때 검색하는 점진 검색 사용
 set hlsearch        " 검색어 강조 기능
 
-"source $VIMRUNTIME/vimrc_example.vim
-"source $VIMRUNTIME/mswin.vim
-"behave mswin
+source $VIMRUNTIME/vimrc_example.vim
+source $VIMRUNTIME/mswin.vim
+behave mswin
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "   NERDTree
@@ -74,4 +75,5 @@ map <F12> :qa!<CR>
 
 "	Tasklist
 "map <C-S-T> :TaskList<CR>   "http://juan.axisym3.net/vim-plugins/#tasklist
+
 
