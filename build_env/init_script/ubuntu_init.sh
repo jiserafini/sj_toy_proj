@@ -8,5 +8,5 @@ sudo apt-get update -y
 sudo apt-get upgrade -y
 
 # necessary package
-sudo apt-get install tree vim ccache git-core build-essential -y
+sudo apt-get install tree vim ccache git-core build-essential ctags cscope -y
 
