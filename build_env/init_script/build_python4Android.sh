@@ -19,10 +19,10 @@ install_toolchain()
 	pushd $download_dir
 
 	# Android NDK
-#echo "Downloading Android NDK r8b"
-#wget http://dl.google.com/android/ndk/android-ndk-r8b-linux-x86.tar.bz2 > /dev/null
-#echo "Downloading Android NDK r8b complete!"
-	popd
+	echo "Downloading Android NDK r8b"
+	wget http://dl.google.com/android/ndk/android-ndk-r8b-linux-x86.tar.bz2 > /dev/null
+	echo "Downloading Android NDK r8b complete!"
+	popd > /dev/null
 
 	# Install toolchain
 	echo "Install Android NDK"
@@ -31,16 +31,14 @@ install_toolchain()
 	pushd $toolchain_dir
 	tar xvf android-ndk-r8b-linux-x86.tar.bz2 > /dev/null
 	echo "Install Android NDK complete!"
-	popd
+	popd > /dev/null
 
 	# export necessary symbol
-	export ANDROID_NDK=$src_dir/android-ndk-r8b
+	export ANDROID_NDK=$toolchain_dir/android-ndk-r8b
 	export PATH=$ANDROID_NDK:$ANDROID_NDK/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin:$PATH
-
-	echo $PATH
 }
 
-build_python4android()
+get_python4android()
 {
 	mkdir $src_dir
 	pushd $src_dir
@@ -48,16 +46,31 @@ build_python4android()
 	echo "Downloading Python for Android source code"
 	hg clone https://code.google.com/p/python-for-android/
 	echo "Downloading Python for Android source code complete!"
-	popd
+	popd > /dev/null
+}
 
+build_python4android()
+{
+	# export necessary symbol
+	export ANDROID_NDK=$toolchain_dir/android-ndk-r8b
+	export PATH=$ANDROID_NDK:$ANDROID_NDK/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin:$PATH
+
+	# modify build script bug
+	pushd src/python-for-android/python-build
+	pwd
+	mv python-src python-src.bak -f
+	./build.sh 2> /dev/null
+	echo "========================================================================="
+	echo "Build complete!"
+	echo "output file: $src_dir/python-for-android/python-build/output/usr"
+	echo "========================================================================="
+	popd > /dev/null
 }
 
 
-
-
 # start point
-#install_requried_package
-
+install_requried_package
 install_toolchain
-
+build_python4android
+get_python4android
 build_python4android
