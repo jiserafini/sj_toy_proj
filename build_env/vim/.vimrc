@@ -101,6 +101,10 @@ map <F12> :qa!<CR>
 "	Tasklist
 map <C-S-T> :TaskList<CR>   "http://juan.axisym3.net/vim-plugins/#tasklist
 
+" Cscope
+if filereadable("./cscope.out")
+	cs add cscope.out
+endif
 "map <F8> [i            " 함수 프로토타입 보기
 "map <F9> gd            " 지역변수 추적
 "map <F10> ''       " 지역변수 추적후 윈 위치
