@@ -1,0 +1,380 @@
+
+\section{CPUFreq 분석}
+
+
+\subsection{Ondemand Governor}
+
+
+\subsubsection{주요 구조체 및 상수}
+
+\begin{lstlisting}
+#define DEF_FREQUENCY_DOWN_DIFFERENTIAL     (10)
+#define DEF_FREQUENCY_UP_THRESHOLD      (80)
+#define DEF_SAMPLING_DOWN_FACTOR        (1)
+#define MAX_SAMPLING_DOWN_FACTOR        (100000)
+#define MICRO_FREQUENCY_DOWN_DIFFERENTIAL   (3)
+#define MICRO_FREQUENCY_UP_THRESHOLD        (95)
+#define MICRO_FREQUENCY_MIN_SAMPLE_RATE     (10000)
+#define MIN_FREQUENCY_UP_THRESHOLD      (11)
+#define MAX_FREQUENCY_UP_THRESHOLD      (100)
+
+#define LATENCY_MULTIPLIER          (1000)
+#define MIN_LATENCY_MULTIPLIER          (100)
+#define TRANSITION_LATENCY_LIMIT        (10 * 1000 * 1000)
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+구조체 dbs\_tuners의 인스턴스 dbs\_tuners\_ins는 전역으로 1개만 존재하며, tickless kernel인 경우에는 up\_threshold와 같은 설정 값이 매우 tight하게 설정된다. 
+\begin{lstlisting}
+static struct dbs_tuners {
+    unsigned int sampling_rate;
+    unsigned int up_threshold;
+    unsigned int down_differential;
+    unsigned int ignore_nice;
+    unsigned int sampling_down_factor;
+    unsigned int powersave_bias;
+    unsigned int io_is_busy;
+    struct notifier_block dvfs_lat_qos_db;
+    unsigned int dvfs_lat_qos_wants;
+    unsigned int freq_step;
+#ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_FLEXRATE
+    unsigned int flex_sampling_rate;
+    unsigned int flex_duration;
+#endif
+} dbs_tuners_ins = {
+    .up_threshold = DEF_FREQUENCY_UP_THRESHOLD,   /* 80 */
+    .sampling_down_factor = DEF_SAMPLING_DOWN_FACTOR, /* 1 */
+    .down_differential = DEF_FREQUENCY_DOWN_DIFFERENTIAL,
+    .ignore_nice = 0, 
+    .powersave_bias = 0, 
+    .freq_step = 100, 
+};
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+또한 callback 함수 호출시 인자로 자주 전달되는 cpufreq\_policy 구조체는 다음과 같다.
+SMP 더라도 regulator의 문제로 인해서 각 core간에 frequency가 공유되는 경우가 많다.
+Per-Core DVFS가 되는 CPU는 AMD와 Qualcomm의 Snapdragon만 현재 가능하며, 이 경우에도  Per-Core로 regulator가 존재하는 것이 아니기 때문에, 가장 높은 frequency에 dominant하게 power consumption이 결정된다. 
+\begin{lstlisting}
+struct cpufreq_policy { 
+    cpumask_var_t       cpus;   /* CPUs requiring sw coordination */
+    cpumask_var_t       related_cpus; /* CPUs with any coordination */
+    unsigned int        shared_type; /* ANY or ALL affected CPUs
+                        should set cpufreq */
+    unsigned int        cpu;    /* cpu nr of registered CPU */
+    struct cpufreq_cpuinfo  cpuinfo;/* see above */
+
+    unsigned int        min;    /* in kHz */
+    unsigned int        max;    /* in kHz */
+    unsigned int        cur;    /* in kHz, only needed if cpufreq
+                     * governors are used */
+    unsigned int        policy; /* see above */
+    struct cpufreq_governor *governor; /* see below */
+
+    struct work_struct  update; /* if update_policy() needs to be
+                     * called, but you're in IRQ context */
+
+    struct cpufreq_real_policy  user_policy;
+
+    struct kobject      kobj;
+    struct completion   kobj_unregister;
+};
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+각 core 별로는 Per core data로 다음 구조체를 각각 가지고 있다. 
+\begin{lstlisting}
+struct cpu_dbs_info_s {
+    cputime64_t prev_cpu_idle;
+    cputime64_t prev_cpu_iowait;
+    cputime64_t prev_cpu_wall;
+    cputime64_t prev_cpu_nice;
+    struct cpufreq_policy *cur_policy;      
+    struct delayed_work work;       /* delayed worker */
+    struct cpufreq_frequency_table *freq_table;           /* CPU frequency table */
+    unsigned int freq_lo;
+    unsigned int freq_lo_jiffies;
+    unsigned int freq_hi_jiffies;
+    unsigned int rate_mult;
+    int cpu;
+    unsigned int sample_type:1;   /* DBS_NORMAL_SAMPLE, DBS_SUB_SAMPLE */
+    /*
+     * percpu mutex that serializes governor limit change with
+     * do_dbs_timer invocation. We do not want do_dbs_timer to run
+     * when user is changing the governor or limits.
+     */
+    struct mutex timer_mutex;   /* mutex lock */
+    bool activated;       /* dbs_timer_init is in effect */
+#ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_FLEXRATE
+    unsigned int flex_duration;
+#endif
+};
+static DEFINE_PER_CPU(struct cpu_dbs_info_s, od_cpu_dbs_info);
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+그외 sysfs에 등록되는 데이터는 다음과 같이 선언되어 있다. 
+\begin{lstlisting}
+cpufreq_freq_attr_ro_perm(cpuinfo_cur_freq, 0400);
+cpufreq_freq_attr_ro(cpuinfo_min_freq);
+cpufreq_freq_attr_ro(cpuinfo_max_freq);
+cpufreq_freq_attr_ro(cpuinfo_transition_latency);
+cpufreq_freq_attr_ro(scaling_available_governors);
+cpufreq_freq_attr_ro(scaling_driver);
+cpufreq_freq_attr_ro(scaling_cur_freq);
+cpufreq_freq_attr_ro(bios_limit);
+cpufreq_freq_attr_ro(related_cpus);
+cpufreq_freq_attr_ro(affected_cpus);
+cpufreq_freq_attr_rw(scaling_min_freq);
+cpufreq_freq_attr_rw(scaling_max_freq);
+cpufreq_freq_attr_rw(scaling_governor); 
+cpufreq_freq_attr_rw(scaling_setspeed);
+
+static struct attribute *default_attrs[] = {
+    &cpuinfo_min_freq.attr,
+    &cpuinfo_max_freq.attr,
+    &cpuinfo_transition_latency.attr,
+    &scaling_min_freq.attr,
+    &scaling_max_freq.attr,
+    &affected_cpus.attr,
+    &related_cpus.attr,
+    &scaling_governor.attr,
+    &scaling_driver.attr,
+    &scaling_available_governors.attr,
+    &scaling_setspeed.attr,
+    NULL
+};
+
+struct kobject *cpufreq_global_kobject;
+EXPORT_SYMBOL(cpufreq_global_kobject);
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+그외 직접적으로는 관련있는 것은 아니지만, 참고할만한 구조체로 cpufreq\_driver가 있다. 
+이 구조체는 CPU vendor에서 작업하는 것으로 Exynos의 경우, arch/arm/mach-exynos에 위치하고 있다. 
+CPU frequency를 설정하거나, 읽거나, 확인하는 것과 같은 low level의 작업을 처리한다. 
+\begin{lstlisting}
+struct cpufreq_driver {
+    struct module           *owner;
+    char            name[CPUFREQ_NAME_LEN];
+    u8          flags;
+                     
+    /* needed by all drivers */
+    int (*init)     (struct cpufreq_policy *policy);
+    int (*verify)   (struct cpufreq_policy *policy);
+    
+    /* define one out of two */
+    int (*setpolicy)    (struct cpufreq_policy *policy);
+    int (*target)   (struct cpufreq_policy *policy,     /* Set CPU frequency*/
+                 unsigned int target_freq,
+                 unsigned int relation);
+
+    /* should be defined, if possible */
+    unsigned int    (*get)  (unsigned int cpu);         /* Return CPU frequency */
+
+    /* optional */
+    unsigned int (*getavg)  (struct cpufreq_policy *policy,
+                 unsigned int cpu);
+    int (*bios_limit)   (int cpu, unsigned int *limit);
+
+    int (*exit)     (struct cpufreq_policy *policy);
+    int (*suspend)  (struct cpufreq_policy *policy);
+    int (*resume)   (struct cpufreq_policy *policy);
+    struct freq_attr    **attr;
+};  
+\end{lstlisting}
+
+
+
+\subsubsection{초기화 작업}
+Ondemand driver의 init 함수에서는 앞서 설명한 것처럼 tickless kernel인 경우, 설정 값이 매우 tight하게 설정한다. 
+즉 dbs\_tuners\_ins의 up\_threshold는 95로, down\_differential는 3으로 설정한다.
+이 값은 추후 delayed work에 의해서 frequency를 변경할 때에 사용된다. 
+그 이후 QoS의 설정이 변경시 notification을 받기 위한 callback 함수 등록과 
+Ondemand governor를 등록한다. 
+
+\begin{lstlisting}
+static int __init cpufreq_gov_dbs_init(void)
+{
+    cputime64_t wall;
+    u64 idle_time;
+    int cpu = get_cpu();
+    int err = 0;
+
+    /* In case of CONFIG_NO_HZ is not defined, get_cpu_idle_time_us() return -1 */
+    idle_time = get_cpu_idle_time_us(cpu, &wall);
+    put_cpu();
+    if (idle_time != -1ULL) {
+        /* In case of CONFIG_NO_HZ is defined, in other words, tickless kernel */
+        /* Idle micro accounting is supported. Use finer thresholds */
+        dbs_tuners_ins.up_threshold = MICRO_FREQUENCY_UP_THRESHOLD;   /* 95 */
+        dbs_tuners_ins.down_differential =
+                    MICRO_FREQUENCY_DOWN_DIFFERENTIAL;                /* 3 */
+        /*
+         * In no_hz/micro accounting case we set the minimum frequency
+         * not depending on HZ, but fixed (very low). The deferred
+         * timer might skip some samples if idle/sleeping as needed.
+        */
+        min_sampling_rate = MICRO_FREQUENCY_MIN_SAMPLE_RATE;          /* 10000 */
+    } else {
+        /* For correct statistics, we need 10 ticks for each measure */
+        /* In case of non tickless kernel */
+        min_sampling_rate =
+            MIN_SAMPLING_RATE_RATIO * jiffies_to_usecs(10);
+    }
+
+    err = pm_qos_add_notifier(PM_QOS_DVFS_RESPONSE_LATENCY,
+                &ondemand_qos_dvfs_lat_nb);
+    if (err)
+        return err;
+
+    /* Register CPU governor */
+    err = cpufreq_register_governor(&cpufreq_gov_ondemand);
+    if (err) {
+        pm_qos_remove_notifier(PM_QOS_DVFS_RESPONSE_LATENCY,
+                       &ondemand_qos_dvfs_lat_nb);
+    }
+
+    return err;
+}
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+cpufreq\_register\_governor() 함수는 cpufreq\_governor 구조체를 인자로 받으며, Ondemand의 경우 다음과 같이 해당 구조체가 설정되었다. 
+여기서 중요한 인자는 cpufreq\_governor\_dbs로 함수 포인터로 governor가 설정/해지/변경(?) 될때마다 해당 함수가 callback으로 호출된다. 
+\begin{lstlisting}
+#ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND
+static
+#endif
+struct cpufreq_governor cpufreq_gov_ondemand = {
+       .name                   = "ondemand",
+       .governor               = cpufreq_governor_dbs,
+       .max_transition_latency = TRANSITION_LATENCY_LIMIT,  
+                              /* 10*1000*1000 */
+       .owner                  = THIS_MODULE,
+};
+\end{lstlisting}
+
+
+\subsubsection{Governor callback 함수}
+
+cpufreq\_governor\_dbs() 함수가 호출되는 시점은 1) 특정 core에서 해당 governor가 처음 수행될 때(CPUFREQ\_GOV\_START), 특정 core에서 해당 governor가 종료될 때(CPUFREQ\_GOV\_STOP), 특정 core의 min, max frequency가 변경(CPUFREQ\_GOV\_LIMITS)될 때이다. 
+이 값은 integer 정수로 전달되기 때문에, 대부분의 경우 switch - case 구문으로 처리한다. 
+초기화 단계에서 cpufreq\_governor\_dbs() 함수의 동작은 다음과 같다. 
+\vspace{\baselineskip}  % http://diegotorquemada-latex.blogspot.kr/2007/02/and-vspacebaselineskip.html
+\begin{compactenum}
+\item 현재 수행 중인 CPU와 per core data를 각각 cpu, this\_dbs\_info에 저장한다. 이 과정은 다른 모든 경우에도 동일하게 수행된다.
+\item 전역으로 mutex lock을 걸고, frequency를 공유하는 모든 core의 per core data를 입력한다. 
+입력하는 데이터는 policy, 각 core의 load를 측정하기 위한 wall time, idle time 값이다. 
+\item 해당 governor를 사용하는 첫 core인 경우(dbs\_enable이 1인 경우), sysfs에 필요한 데이터를 등록하고, 
+dbs\_tuners\_ins의 sampling\_rate을 계산한다. 
+\item mutex lock을 풀고, 각 core에서 사용하는 mutex를 초기화 하고, 각 core별로 수행하는 timer를 초기화 한다.
+\end{compactenum}
+
+\begin{lstlisting}
+static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
+                   unsigned int event)
+{
+
+    unsigned int cpu = policy->cpu;
+    struct cpu_dbs_info_s *this_dbs_info;
+    unsigned int j;
+    int rc;
+
+    this_dbs_info = &per_cpu(od_cpu_dbs_info, cpu);
+
+    /* cpu: current core
+       this_dbs_info: per core data of current core */
+    switch (event) {
+    case CPUFREQ_GOV_START:
+        /* abnormal case */
+        if ((!cpu_online(cpu)) || (!policy->cur))
+            return -EINVAL;
+
+        mutex_lock(&dbs_mutex);
+
+        dbs_enable++;
+
+        /* for all cores which shared frequency, 
+        Set idle & wall time in per cpu data for calculating core load */
+        for_each_cpu(j, policy->cpus) {
+            struct cpu_dbs_info_s *j_dbs_info;
+            j_dbs_info = &per_cpu(od_cpu_dbs_info, j);
+
+            /* Set policy */
+            j_dbs_info->cur_policy = policy;
+
+            /* Set idle time & wall time of each core */
+            j_dbs_info->prev_cpu_idle = get_cpu_idle_time(j,
+                        &j_dbs_info->prev_cpu_wall);
+      
+            /* in case of ignore_nice is set, 
+            then save the previous nice value */
+            /* TODO Check kstat module */
+            if (dbs_tuners_ins.ignore_nice) {
+                j_dbs_info->prev_cpu_nice =
+                        kstat_cpu(j).cpustat.nice;
+            }
+        }
+        this_dbs_info->cpu = cpu;
+        this_dbs_info->rate_mult = 1;
+
+        /* Get freq_table of each core & Set freq_lo as 0
+        ondemand_powersave_bias_init_cpu(cpu);
+
+
+        /*
+         * Start the timerschedule work, when this governor
+         * is used for first time
+         */
+        if (dbs_enable == 1) {
+            unsigned int latency;
+
+            rc = sysfs_create_group(cpufreq_global_kobject,
+                        &dbs_attr_group);
+            if (rc) {
+                mutex_unlock(&dbs_mutex);
+                return rc;
+            }
+
+            /* Compute dbs_tuners_ins.sampling_rate */
+            /* policy latency is in nS. Convert it to uS first */
+            latency = policy->cpuinfo.transition_latency / 1000;
+            if (latency == 0)
+                latency = 1;
+            /* Bring kernel and HW constraints together */
+            min_sampling_rate = max(min_sampling_rate,
+                    MIN_LATENCY_MULTIPLIER * latency);
+            dbs_tuners_ins.sampling_rate =
+                max(min_sampling_rate,
+                    latency * LATENCY_MULTIPLIER);
+
+            /* Only x86: In case of ARM, io_is_busy is 0 */
+            dbs_tuners_ins.io_is_busy = should_io_be_busy();
+        }
+        mutex_unlock(&dbs_mutex);
+        mutex_init(&this_dbs_info->timer_mutex);
+
+        /* Set per core timer */
+        dbs_timer_init(this_dbs_info);
+        break;
+
+    case CPUFREQ_GOV_STOP:
+        ...
+        break;
+
+    case CPUFREQ_GOV_LIMITS:
+        ...
+        break;
+
+
+\end{lstlisting}
+
+
+\subsubsection{Timer 관련 함수}
