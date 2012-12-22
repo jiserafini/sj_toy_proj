@@ -1,0 +1,160 @@
+\begin{thebibliography}{10}
+
+\bibitem{monkeyrunner}
+Monkeyrunner concepts.
+
+\bibitem{IADVS}
+{\sc Bi, M., Crk, I., and Gniady, C.}
+\newblock Iadvs: On-demand performance for interactive applications.
+\newblock In {\em High Performance Computer Architecture (HPCA), 2010 IEEE 16th
+  International Symposium on\/} (jan. 2010), pp.~1 --10.
+
+\bibitem{desktopTLP}
+{\sc Blake, G., Dreslinski, R.~G., Mudge, T., and Flautner, K.}
+\newblock Evolution of thread-level parallelism in desktop applications.
+\newblock In {\em Proceedings of the 37th annual international symposium on
+  Computer architecture\/} (New York, NY, USA, 2010), ISCA '10, ACM,
+  pp.~302--313.
+
+\bibitem{smartphonepower}
+{\sc carroll, a., and heiser, g.}
+\newblock an analysis of power consumption in a smartphone.
+\newblock In {\em proceedings of the 2010 usenix conference on usenix annual
+  technical conference\/} (berkeley, ca, usa, 2010), usenixatc'10, usenix
+  association, pp.~21--21.
+
+\bibitem{decomposition}
+{\sc Choi, K., Soma, R., and Pedram, M.}
+\newblock Dynamic voltage and frequency scaling based on workload
+  decomposition.
+\newblock In {\em Proceedings of the 2004 international symposium on Low power
+  electronics and design\/} (New York, NY, USA, 2004), ISLPED '04, ACM,
+  pp.~174--179.
+
+\bibitem{packandcap}
+{\sc Cochran, R., Hankendi, C., Coskun, A.~K., and Reda, S.}
+\newblock Pack \& cap: adaptive dvfs and thread packing under power caps.
+\newblock In {\em Proceedings of the 44th Annual IEEE/ACM International
+  Symposium on Microarchitecture\/} (New York, NY, USA, 2011), MICRO-44 '11,
+  ACM, pp.~175--185.
+
+\bibitem{selfconstructive}
+{\sc Dong, M., and Zhong, L.}
+\newblock Self-constructive high-rate system energy modeling for
+  battery-powered mobile systems.
+\newblock In {\em Proceedings of the 9th international conference on Mobile
+  systems, applications, and services\/} (New York, NY, USA, 2011), MobiSys
+  '11, ACM, pp.~335--348.
+
+\bibitem{diversity}
+{\sc Falaki, H., Mahajan, R., Kandula, S., Lymberopoulos, D., Govindan, R., and
+  Estrin, D.}
+\newblock Diversity in smartphone usage.
+\newblock In {\em Proceedings of the 8th international conference on Mobile
+  systems, applications, and services\/} (New York, NY, USA, 2010), MobiSys
+  '10, ACM, pp.~179--194.
+
+\bibitem{characterinteractive}
+{\sc Gutierrez, A., Dreslinski, R., Wenisch, T., Mudge, T., Saidi, A., Emmons,
+  C., and Paver, N.}
+\newblock Full-system analysis and characterization of interactive smartphone
+  applications.
+\newblock In {\em Workload Characterization (IISWC), 2011 IEEE International
+  Symposium on\/} (nov. 2011), pp.~81 --90.
+
+\bibitem{anatomizing}
+{\sc Huang, J., Xu, Q., Tiwana, B., Mao, Z.~M., Zhang, M., and Bahl, P.}
+\newblock Anatomizing application performance differences on smartphones.
+\newblock In {\em Proceedings of the 8th international conference on Mobile
+  systems, applications, and services\/} (New York, NY, USA, 2010), MobiSys
+  '10, ACM, pp.~165--178.
+
+\bibitem{micro06DVFS}
+{\sc Isci, C., Buyuktosunoglu, A., Cher, C.-Y., Bose, P., and Martonosi, M.}
+\newblock An analysis of efficient multi-core global power management policies:
+  Maximizing performance for a given power budget.
+\newblock In {\em Proceedings of the 39th Annual IEEE/ACM International
+  Symposium on Microarchitecture\/} (Washington, DC, USA, 2006), MICRO 39, IEEE
+  Computer Society, pp.~347--358.
+
+\bibitem{tmapp}
+{\sc Issa, J., Le, Q., Min, S., Steinbrecher, J., and Turlapati, R.}
+\newblock Tmapp - typical mobile applications benchmark.
+\newblock In {\em proceedings of the Seventh Annual Workshop on Modeling,
+  Benchmarking and Simulation (MoBS)\/} (2011), MoBS 2011.
+
+\bibitem{VMpower}
+{\sc Kansal, A., Zhao, F., Liu, J., Kothari, N., and Bhattacharya, A.~A.}
+\newblock Virtual machine power metering and provisioning.
+\newblock In {\em Proceedings of the 1st ACM symposium on Cloud computing\/}
+  (New York, NY, USA, 2010), SoCC '10, ACM, pp.~39--50.
+
+\bibitem{isca11DVFS}
+{\sc Ma, K., Li, X., Chen, M., and Wang, X.}
+\newblock Scalable power control for many-core architectures running
+  multi-threaded applications.
+\newblock In {\em Proceedings of the 38th annual international symposium on
+  Computer architecture\/} (New York, NY, USA, 2011), ISCA '11, ACM,
+  pp.~449--460.
+
+\bibitem{powermodelsyscall}
+{\sc Pathak, A., Hu, Y.~C., Zhang, M., Bahl, P., and Wang, Y.-M.}
+\newblock Fine-grained power modeling for smartphones using system call
+  tracing.
+\newblock In {\em Proceedings of the sixth conference on Computer systems\/}
+  (New York, NY, USA, 2011), EuroSys '11, ACM, pp.~153--168.
+
+\bibitem{intothewild}
+{\sc Shye, A., Scholbrock, B., and Memik, G.}
+\newblock Into the wild: studying real user activity patterns to guide power
+  optimizations for mobile architectures.
+\newblock In {\em Proceedings of the 42nd Annual IEEE/ACM International
+  Symposium on Microarchitecture\/} (New York, NY, USA, 2009), MICRO 42, ACM,
+  pp.~168--178.
+
+\bibitem{Koala}
+{\sc Snowdon, D.~C., Le~Sueur, E., Petters, S.~M., and Heiser, G.}
+\newblock Koala: a platform for os-level power management.
+\newblock In {\em Proceedings of the 4th ACM European conference on Computer
+  systems\/} (New York, NY, USA, 2009), EuroSys '09, ACM, pp.~289--302.
+
+\bibitem{WhySlowBrowser}
+{\sc Wang, Z., Lin, F.~X., Zhong, L., and Chishtie, M.}
+\newblock Why are web browsers slow on smartphones?
+\newblock In {\em Proceedings of the 12th Workshop on Mobile Computing Systems
+  and Applications\/} (New York, NY, USA, 2011), HotMobile '11, ACM,
+  pp.~91--96.
+
+\bibitem{diversebehavior}
+{\sc Xu, Q., Erman, J., Gerber, A., Mao, Z., Pang, J., and Venkataraman, S.}
+\newblock Identifying diverse usage behaviors of smartphone apps.
+\newblock In {\em Proceedings of the 2011 ACM SIGCOMM conference on Internet
+  measurement conference\/} (New York, NY, USA, 2011), IMC '11, ACM,
+  pp.~329--344.
+
+\bibitem{AppScope}
+{\sc Yoon, C., Kim, D., Jung, W., Kang, C., and Cha, H.}
+\newblock Appscope: application energy metering framework for android
+  smartphones using kernel activity monitoring.
+\newblock In {\em Proceedings of the 2012 USENIX conference on Annual Technical
+  Conference\/} (Berkeley, CA, USA, 2012), USENIX ATC'12, USENIX Association,
+  pp.~36--36.
+
+\bibitem{accurateonline}
+{\sc Zhang, L., Tiwana, B., Qian, Z., Wang, Z., Dick, R.~P., Mao, Z.~M., and
+  Yang, L.}
+\newblock Accurate online power estimation and automatic battery behavior based
+  power model generation for smartphones.
+\newblock In {\em Proceedings of the eighth IEEE/ACM/IFIP international
+  conference on Hardware/software codesign and system synthesis\/} (New York,
+  NY, USA, 2010), CODES/ISSS '10, ACM, pp.~105--114.
+
+\bibitem{transactionbased}
+{\sc Zhao, X., Guo, Y., and Chen, X.}
+\newblock Transaction-based adaptive dynamic voltage scaling for interactive
+  applications.
+\newblock In {\em Proceedings of the 14th ACM/IEEE international symposium on
+  Low power electronics and design\/} (New York, NY, USA, 2009), ISLPED '09,
+  ACM, pp.~255--260.
+
+\end{thebibliography}

@@ -1,0 +1,139 @@
+\chapter{TLP Behavior of Mobile Applications}
+
+\section{Phase Classification}
+
+In mobile applications, the user interactions dominate the CPU usage patterns, and
+affect the TLP and utilization significantly. Although each application exhibits
+different types of user interactions and CPU usage patterns, we broadly classify
+the execution phases of mobile applications into three phases, {\tt setup},
+{\tt responsive}, and {\tt interactive}.
+Firstly, a {\tt setup} phase initializes an application, or loads data for a new round 
+of game. In this period, user interactions do not affect the CPU usage significantly.
+Secondly, a {\tt responsive} phase occurs when cores become significantly active only after a user interaction.
+In such a responsive phase, CPUs become idle or show low utilization sometime after the interaction, after
+the computation is completed to process the user interaction. A common example of
+the responsive phase is the interaction with a web browser application. Once
+a hyperlink is touched, the CPUs become active to render a new page. However,
+once the process is completed, the CPUs become idle again.
+
+Finally, in an {\tt interactive} phase, the application continuously conducts some work
+while users may interact with the application. For games, 
+CPUs process the game engine continuously regardless of user interactions. At the same time,
+user interactions may change the behaviors of such computational work.
+However, even in an interactive phase, the CPU is not completely occupied with 
+active threads, and the CPU utilization do not change significantly.
+An application may exhibit only a subset of the three phases. For example, some applications
+may not have any responsive phases.
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/angrybird_interactive.eps, width=8cm}
+%\vspace{-0.45in}
+\epsfig{figure=graphs/browser_1cpu.eps, width=8cm}
+%\vspace{0.01in}
+\end{center}
+\caption{CPU util. and touch events with 1 core}
+%\vspace{-0.2in}
+\label{fig:interact_util_1cpu}
+\end{figure}
+
+To show the detailed behaviors of applications, Figure~\ref{fig:interact_util_1cpu} presents
+the utilization of a single 1GHz core for a game application (Angry bird) and a web browser.
+The dots represent user touch inputs on the touch screen.
+For the game application, interactive phases dominate the execution.
+In an interactive phase,
+CPU utilization is maintained around 40\%, regardless of user interactions.
+During the interactive phase, even if the user affects the application execution though
+touch inputs, the CPU utilization is dominantly determined by the game engine routine.
+However, in the browser application, {\tt response} phases are mostly
+shown. CPU utilization increases only when a user touch occurs, and the utilization
+drop soon after the interaction is processed.
+
+\input{app_desc}
+
+Although applications have all or a subset of the three phases, one of the three phases
+dominate each application. For example, for the majority of game applications, 
+the interactive phase appears frequently. Web browsers are commonly dominated by
+responsive phases. Table~\ref{tab:app_summary} shows a set of benchmark smartphone 
+applications classified by their main dominant phase.
+The first four applications are games and a movie player, and the applications
+have all three phases. However, for the four applications, interactive phases
+dominate the execution time of CPUs.
+In the next five applications, responsive phases dominate application execution. In those applications,
+interactive phases do not appear, since the most of CPU usage is initiated by user inputs.
+
+\input{sum_app_small}
+
+\section {Available TLP}
+
+In this section, we present the CPU utilization and available TLP during the main phase
+of each type of applications. 
+Table~\ref{tab:tlp_summary} presents the utilization and TLP for our benchmark applications in
+their main phase, the first four with the interactive phase, and the rest with
+the responsive phase.
+
+For each phase of an application, two numbers are shown. Firstly,
+CPU utilization is an average utilization for one core with 1.4Ghz during the phase. 
+The second row, the number of
+active threads presents the available parallelism. 
+A phase is further decomposed into a portion of the phase with and without
+user interactions. 
+
+Firstly, the overall utilization is relatively low for mobile applications. The utilization is
+only measured with one core with 1.4Ghz. Considering four available cores in the target platform,
+even a single core is not fully utilized. For games, the CPU utilization is between 48-93\%
+with a core, but the movie player exhibits much lower 25\% utilization. For interactive
+applications, touch inputs do not affect the CPU utilization significantly. However, as expected,
+the utilizations for responsive applications are high only with touch inputs. 
+
+Secondly, the average number of active threads during the main phase is quite limited. Most
+of applications have only 1-2 active threads at any given time to be scheduled to cores. 
+An exception is the web browser which has more than four active threads. For such applications
+with several threads, multiple cores can be used with much lower clock frequencies to reduce
+the overall energy.
+
+\section{Dominant Thread}
+
+\input{app_dt_short}
+
+To minimize the power for multi-cores, more cores should be used with the lowest possible frequency.
+However, it must be able to accommodate the active threads and their utilization requirements. 
+Another important aspect of TLP is how each thread consumes CPU resources. Although there is 
+a limited number of active threads in mobile applications during their main phases, the CPU utilizations
+of the threads are quite skewed. One or two threads dominate the overall CPU utilization, even though
+there are many other threads, which shortly use CPU.
+
+Table~\ref{tab:dom_threads} presents the behaviors of dominant threads in our benchmark applications.
+For each application, the first line shows the average portion of utilization of a dominant thread during
+the main phase. For example, for angry bird, a single dominant thread uses 37\% of overall CPU utilization 
+during the phase. The second line shows the number of threads, which are activated at least once 
+during the main phase. The number of
+executed threads is quite large from 34-285, but one thread accounts for 25-53\% of CPU utilization during
+the period. All the other non-dominant threads consume a very small portion of the CPU utilization.
+
+In common mobile applications, some levels of TLP are available. However, the thread composition is
+quite different from the traditional multi-threaded applications with many homogeneous threads.
+A main dominant thread accounts for a significant utilization and many non-dominant threads use
+CPUs only for a short period of time. 
+
+\begin{comment}
+% Not Used
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/angry_thread.eps, width=8cm}
+%\vspace{-0.45in}
+\epsfig{figure=graphs/browser_thread.eps, width=8cm}
+%\vspace{0.01in}
+\end{center}
+\caption{Application threads with 2 cores}
+\label{fig:threads}
+\end{figure}
+\end{comment}
+
+\begin{comment}
+Figure~\ref{fig:threads} presents the CPU utilization of active threads with 2 core runs.
+For both applications, the top thread dominates core utilization. For the game application,
+there is only a small amount of utilization by the rest of threads, causing unbalanced loads
+in two cores. For the browser application, there are several other active threads, which
+can share the second core.
+\end{comment}

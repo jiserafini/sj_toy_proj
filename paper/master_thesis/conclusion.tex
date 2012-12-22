@@ -1,0 +1,19 @@
+%\vspace{-0.2in}
+\chapter{Conclusions}
+%\vspace{-0.2in}
+
+This paper characterizes the power behaviors of smartphone multi-cores and interactive applications. 
+Although the number of cores are increasing, the available TLP is still limited in the interactive
+applications. Furthermore, the available TLP is highly skewed, with one or two threads using
+a significant portion of CPU utilization. We classified main applications phases into
+interactive and responsive phases, and showed that the two phases have different usage patterns
+and responsive requirements.
+Based on the analysis, we proposed a power management technique with three components,
+dominant thread scheduling, phase-aware headroom adjustment, and thread packing. The interactive
+applications benefit most from the phase-aware headroom adjustment due to their stability
+of CPU usages. Although the proposed technique does not save power significantly for
+the responsive applications, the scheduling scheme reduces the execution delay significantly,
+and thus improves energy and $ED^2$P for the responsive applications. 
+
+
+

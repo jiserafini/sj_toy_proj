@@ -1,0 +1,138 @@
+\chapter{Improving Power Management for Mobile Platforms}
+
+In this section, we propose three techniques to improve the energy efficiency of
+mobile platforms, exploiting the TLP characteristics and interaction types of
+applications. The first technique identifies a dominant thread and
+assign a dedicated core to the dominant thread, to preserve the context
+in the cache, and avoid any unnecessary interference with other threads.
+The second technique attempts to maximize the utilization by lowering
+the clock frequency as much as possible. To avoid any performance degradation,
+it exploits the usage difference between interactive and responsive phases.
+The third technique determines the most energy efficient number of
+active cores for a given set of current active threads. Using a utility-based
+power model, it picks the number of cores, and assign non-dominant threads
+evenly to the cores.
+Algorithm~\ref{algo:tlpdvfs} shows the proposed power management with the 
+three techniques ({\tt part 2, part 3, and part 4} ).
+
+\section{Dominant Thread Scheduling for Energy Efficiency}
+
+The first technique identifies and prioritizes the execution of
+a dominant thread. As shown in Section 3.3, 
+common mobile applications have a dominant thread, and often,
+the performance perceived by the user is determined by the delay of 
+the dominant thread. Not to degrade the user perceived performance,
+any power management scheme must not increase the delay of
+the dominant thread. Furthermore, reducing the delay of a dominant thread
+can potentially reduce the CPU energy by completing a phase as early
+as possible.
+
+In the proposed power management scheme, a dominant thread is identified
+with the energy management module, tracking the CPU utilization of 
+threads dynamically. Once a dominant thread is identified, the thread
+is scheduled to a fixed core. Assigning a fixed core to a dominant thread
+has several benefits. Any interference, including the cache pollution, 
+by sharing a core with other minor threads can be avoided. Furthermore, since the
+dominant thread account for a significant portion of CPU utilization,
+a migration of the dominant thread from a core to another can fluctuate
+the utilization of cores, which makes utilization less stable.
+In Algorithm~\ref{algo:tlpdvfs}, {\tt part 2} shows the dominant thread scheduling
+({\tt DT-aware scheduling}).
+
+\input{dvfs_algorithm}
+
+\section{Dynamic Headroom Adjustment}
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/app_stddev.eps, width=7cm}
+\vspace{-0.2in}
+\end{center}
+\caption{Standard Deviation Difference}
+\label{fig:stdv_phase}
+\end{figure}
+
+The second technique adjusts the headroom for DVFS. In the original on-demand 
+governor as shown in Algorithm~\ref{algo:ondemand}, when the current utilization is higher than
+{\tt up-threshold}, the frequency is increased to the max frequency to enhance the user responsiveness.
+However, it can unnecessarily increase the frequency, as even from the lowest 200MHz,
+the frequency can be increased to the peak frequency.
+
+The second technique attempts to maintain the highest possible utilization by
+setting the clock frequency as low as possible. Unlike the on-demand governor 
+policy, the clock frequency is increased by steps, even at high utilization.
+However, a problem with such
+a narrow margin in utilization is that it may degrade performance when the
+utilization fluctuate significantly. To mitigate the effect, the scheme adds 
+a small percentage of headroom when it sets the clock frequency.
+
+The headroom for clock frequency setting is adjusted dynamically.
+The interactive and responsive phases have different requirements for the 
+frequency headroom. The interactive phases tend to have stable utilizations regardless
+of user inputs, so they do not require a high headroom, allowing to reduce 
+frequency at the lowest level. 
+However, responsive phases exhibit high fluctuation of utilization,
+and thus a large headroom is required not to degrade user responsiveness for a sudden surge
+of CPU utilization. Figure~\ref{fig:stdv_phase} presents the standard deviation of
+application loads for the two classes of applications. The figure shows that
+the interactive applications exhibit much less fluctuation of utilization, and
+such stable utilization allows a small headroom for frequency setting.
+
+\begin{comment}
+\begin{table}[tb]
+\begin{center}
+%\begin{footnotesize}
+\begin{tabular}{r|r}
+\hline \hline
+Threshold       & Probability   \\ \hline
+80      &       0.003   \\
+85      &       0.013   \\
+90      &       0.003   \\
+95      &       0.009   \\
+\hline \hline
+\end{tabular}
+%\end{footnotesize}
+\end{center}
+%\vspace*{-0.15in}
+\caption{Probability of peak utilization with the interative applications}
+\label{tab:prob_peak}
+%\vspace*{-0.2in}
+\end{table}
+
+To show the utilization stability of interative applications, Table~\ref{tab:prob_peak} presents
+the probability of peak utilization for the interative applications.
+It checks whether CPU utilization reaches 99-100\%, meaning the current
+frequency setting can be too low for the current CPU load. Such a low frequency setting can degrade the application
+performance, as the application cannot receive enough CPU resource.
+It uses the on-demand governor, and uses four different {\tt up-threshold} settings from the conservative 80\% 
+to the most aggresive 95\%. As shown by the table, the utility of interactive applications do not require
+the conservative policy by the on-deman governor, as with even with a very high threadhold of 95\%, the probability
+\end{comment}
+
+As shown in Algorithm~\ref{algo:tlpdvfs} ({\tt part 2}),
+the power manager maintains the past 16 samples of utilization.
+If the variation of the utilization samples is higher than a threshold, the headroom
+is increased, expecting responsive phases. If the variation stays low, the headroom
+is decreased to reduce unnecessary frequency increase.
+
+\section{Thread Packing}
+
+The final technique is to determine the most energy efficient number of active
+cores, and pack threads to the determined number of cores. A dominant thread is
+scheduled to a separate core, and the other non-dominant threads are packed 
+into the rest of cores. 
+Finding an optimal number of cores and packing threads on the cores have been
+proposed by Cochran et al. \cite{packandcap}  However, our method uses 
+a much simpler power model, since a utility-based model is good enough for
+mobile applications, unlike compute-intensive multi-threaded applications used
+by the prior study.
+
+To determine the optimal number of cores, we use the utility-based power model, as discussed
+in Section 2.2. Using the power model, for the current utilization for active threads,
+the best number of cores and frequency is selected by searching all possible combinations
+of power for different frequency and core counts. In {\tt part 4} of Algorithm~\ref{algo:tlpdvfs},
+the power model is used to select the best number of cores and the minimum frequency 
+to satisfy the current utilization with the frequency headroom determined by the headroom
+adjustment ({\tt part 2}).
+The proposed technique can be used regardless of the support for per-core DVFS. 
+

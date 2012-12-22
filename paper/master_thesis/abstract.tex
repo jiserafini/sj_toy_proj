@@ -1,0 +1,28 @@
+\begin{abstract}
+
+As smartphones proliferate, understanding 
+the power behaviors of smartphones and their applications 
+has become critical to overcome their battery limitation. However, 
+the applications running on the smartphones
+are commonly sensitive to user interaction, and their behaviors are 
+different from traditional CPU benchmark applications. 
+This paper characterizes the thread-level parallelism (TLP) and CPU usage patterns
+of interactive smartphone applications. The paper presents how applications
+exhibit different types of user interactions and how differently various interaction 
+phases provide TLP. 
+
+Based on the analysis on the TLP and interaction phases of mobile applications, 
+we propose an improved power management scheme using the dynamic voltage and frequency scaling mechanism
+available in mobile platforms. The proposed improvement uses a scheduling scheme,
+which identifies and prioritizes a dominant thread, 
+which determines the perceived performance of mobile applications.
+Using a utility-based power model, the scheme finds the best number of active cores for
+energy efficiency, and either pack or unpack non-dominant threads to the most 
+energy efficient number of active cores.
+In addition to the TLP-oriented scheduling component, the scheme also controls the headroom for
+frequency scaling dynamically, to adapt to the user interaction phases. 
+While maintaining the unnecessary headroom to the minimum, 
+the proposed scheme improves the energy efficiency without any perceived performance
+degradation.
+
+\end{abstract}

@@ -1,0 +1,51 @@
+\section{Current Power Management Schemes}
+
+In this section, we analyze the behaviors of a state-of-art power management module using DVFS.
+The target smartphone platform uses the {\tt interactive} governor which enhances the {\tt ondemand} governor
+available in plain Linux platforms. For a single core, the interactive governor reduces the clock
+frequency to reduce under-utilization of cores. However, when a user touch occurs, the clock frequency
+is maximized not to delay the process of a user interaction. The clock frequency is slowly decreased once
+the process of user interaction is completed and CPU utilization becomes low at the maximum clock frequency.
+
+The CPU hot plug-in mechanism is also combined with the DVFS power management scheme. The second core is turned on,
+if the frequency of the first core, which is adjusted by the aforementioned governor, is higher 
+than a threshold more than N times. N is often set to five. The second core is turned off, if the second core 
+frequency is lower than a threshold more than N times. In the current mechanism, the decision is made based
+on indirect information of TLP, set by the power governor. It may not fully consider the available
+TLP and the balance of such TLP.
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/wasted_cycles.eps, width=7cm}
+%\vspace{-0.2in}
+\end{center}
+\caption{Wasted cycles: fixed 1.2GHz, ondemand, and interactive governor with two cores}
+%\vspace{-0.2in}
+\label{fig:wasted_cycles}
+\end{figure}
+
+To evaluate the potential improvement for better power management, we analyze the wasted CPU cycles with
+the current power governors and hot plug-in schemes. Figure~\ref{fig:wasted_cycles} presents the
+percentage of wasted CPU cycles for two cores for three configurations: fixed 1.2GHz, ondemand,
+and interactive governors. The wasted cycles are defined as the sum of unused CPU cycles due to
+less than 100\% utilization. To optimize the energy efficiency, the wasted cycles must be
+eliminated to provide the exact amount of computational power to interactive applications by
+DVFS.  
+
+The first bar shows the wasted CPU cycles when the clock frequency of both cores is fixed to
+1.2GHz. For six applications, more than 70-95\% of clock cycles are wasted, since the actual
+CPU utilization is quite low, as shown in Table~\ref{tab:summary}. 
+The wasted cycles can be eliminated if an ideal governor can change the frequency arbitrarily. 
+However, there are three potential problems with having an ideal governor. Firstly,
+the governor cannot predict the future utilization accurately without delaying applications
+by aggressive frequency reduction. Secondly, per-core DVFS is not supported in the current
+mobile multi-cores, so that clock frequencies
+of multiple cores must be set to the same frequency. Finally, the clock frequency can be changed
+only by discrete steps.
+
+The second and third bars show the wasted cycles with the current two governors. 
+Compared to the fixed 1.2GHz configuration, both governors have significant amounts of
+wasted cycles. Compared to an ideal system, the current governors have a significant room for further 
+improvement for better DVFS-based power management. However, to adjust frequencies more aggressively
+without affecting users' perception on the system performance, it will be 
+critical to accurately model the utilization and TLP for interactive applications. 

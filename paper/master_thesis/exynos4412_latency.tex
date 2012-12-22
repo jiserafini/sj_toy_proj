@@ -1,0 +1,41 @@
+\begin{table}[tb]
+\begin{center}
+\begin{footnotesize}
+\begin{tabular}{l|l|r}
+\hline \hline
+\multicolumn{2}{c|}{Mode}	& 	latency(msec)	\\
+\hline
+\multirow{2}{*}{Hotplugging}	&	On	&	17.251 \\\cline{2-3}
+				&	Off	& 4.346 \\
+\hline
+\multicolumn{2}{c|}{DVFS}	&	1.045	\\
+\hline
+\multirow{2}{*}{Idle}		&	Clock gating	&	0.001 \\ \cline{2-3}
+				&	HW power down	& 	0.300 \\
+\hline \hline
+\end{tabular}
+\end{footnotesize}
+\end{center}
+%\vspace*{-0.15in}
+\caption{Latency of Exynos 4412 AP}
+% %\vspace*{-0.2in}
+\end{table}
+
+\begin{comment}
+[Clock gating(WFI(Wait For Interrupt))]
+
+WFI and WFE Standby modes disable most of the clocks of a processor, while keeping
+its logic powered up. This reduces the power drawn to the static leakage current, leaving
+a tiny clock power overhead requirement to enable the device to wake up.
+Entry into WFI Standby mode is performed by executing the WFI instruction.
+
+
+
+[ARM Power down mode]
+
+Shutdown mode powers down the entire device, and all state, including cache, must be saved
+externally by software. This state saving is performed with interrupts disabled, and finishes with
+a Data Synchronization Barrier operation. The Cortex-A9 processor then communicates with a
+power controller that the device is ready to be powered down in the same manner as when
+entering Dormant Mode. The processor is returned to the run state by asserting reset.
+\end{comment}

@@ -1,0 +1,60 @@
+%\begin{algorithm}[t]
+\begin{algorithm}[t]
+\caption{TLP-aware DVFS and scheduling}
+\label{algo:tlpdvfs}
+\begin{algorithmic}
+{\footnotesize
+\STATE // initially, $headroom \gets 10$,
+\STATE // $inc\_headroom \gets 0$, $dec\_headroom \gets 0$
+\STATE
+\STATE // part 1: check the usefulness of sample
+\IF {$core\_util == 100\%$ for any core}
+\STATE set the maximum frequency
+\STATE set\_scheduler\_timer(10ms)
+\RETURN
+\ENDIF
+\STATE
+\STATE // part 2: DT-aware scheduling
+\FOR {each thread}
+\STATE {\bf if} $thread\_util >= DOMINANT\_THRESHOLD$ %XXX
+\STATE \quad mark as a dominant thread
+\ENDFOR
+\STATE allocate one core for each dominant threads
+\STATE
+\STATE // part 3: Adjust headroom 
+\STATE $freq\_util \gets \sum_{i=0}^{num\_cores} core\_freq_i * core\_util_i$
+\STATE $history$.append($freq\_util$)
+\STATE $stdev$ = standard deviation of the last 16 entries of $history$
+\STATE {\bf if} $stdev > LARGE\_STDEV$
+\STATE \quad {\bf then} $inc\_headroom++$; $dec\_headroom \gets 0$
+\STATE {\bf else if} $stdev < SMALL\_STDEV$
+\STATE \quad {\bf then} $dec\_headroom++$; $inc\_headroom \gets 0$
+%\STATE {\bf else}
+%\STATE \quad {\bf then} $dec\_headroom \gets 0$; $inc\_headroom \gets 0$
+\STATE
+\STATE {\bf if} $inc\_headroom > INC\_HEADROOM\_THRESHOLD$
+\STATE \quad {\bf then} $headroom++$
+\STATE {\bf if} $dec\_headroom > DEC\_HEADROOM\_THRESHOLD$
+\STATE \quad {\bf then} $headroom--$
+\STATE
+\STATE // part 4: thread packing
+\STATE $best\_core \gets 0$, $best\_freq \gets 0$
+\STATE $min\_power \gets VERT\_LARGE\_NUMBER$
+\FOR {$i \gets 1 ... num\_cores$}
+\STATE Divide $thread\_util$s to $i$ cores to as evenly as possible
+%\STATE $largest\_util \gets$ largest utilizatoin among cores
+\STATE $freq \gets$ the smallest frequency the largest utilization
+\STATE \quad\quad\quad\quad will be less than $(100-headroom)$
+\STATE $power \gets$ power\_model($freq$, $thread\_util$ distribution)
+\IF {$power < min\_power$}
+\STATE $best\_core \gets i$, $best\_freq \gets freq$
+\STATE $min\_power \gets power$
+\ENDIF
+\ENDFOR
+\STATE
+\STATE pack threads to $best\_core$ and set the frequency as $best\_freq$
+\STATE set\_scheduler\_timer(100ms)
+\RETURN
+}
+\end{algorithmic}
+\end{algorithm}

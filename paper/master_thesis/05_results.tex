@@ -1,0 +1,117 @@
+\chapter{Experimental Results}
+
+\input{methodology}
+
+\section{Power}
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/interactive_power_result.eps, width=8cm}
+%\vspace{-0.2in}
+\end{center}
+\caption{Power saving percentage normalized to Ondemand governor}
+\label{fig:interactive_power_result}
+\end{figure}
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/responsive_power_result.eps, width=8cm}
+%\vspace{-0.2in}
+\end{center}
+\caption{Power saving percentage normalized to Ondemand governor}
+\label{fig:responsive_power}
+\end{figure}
+
+We first evaluate the power saving with the proposed techniques. Figure~\ref{fig:interactive_power_result} and~\ref{fig:responsive_power} 
+present the power saving compared to the baseline on-demand governor, for the interactive, and responsive applications respectively. 
+For the interactive applications, the proposed techniques effectively reduce power up-to 20\% for {\tt angry bird}. 
+The moive player has little improvement, since the on-demand governor can set the frequency effectively for the application with
+a low and stable utilization. Among the three techniques, the interactive applications benefit most from the phase-aware headroom
+adjustment. Since the utilization is relatively stable, the tight frequency setting can reduce the overall power, without
+hurting user interactivity, as will be discussed with a user study in Section 5.6. 
+
+For the responsive applications, three techniques have a relatively small power saving, or increase power for the two applications.
+The headroom adjustment cannot reduce the headroom for the responsive applications effecitvely, since they have a high fluctuation of 
+utlization, and thus require a large headroom not to degrade the performance and system responsiveness. 
+
+\section{Delay, Energy, and ED\textsuperscript{2}P for the responsive applications}
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/responsive_latency_result.eps, width=8cm}
+%\vspace{-0.2in}
+\end{center}
+\caption{Latency Improvement percentage normalized to Ondemand governor}
+\label{fig:responsive_latency_result}
+\end{figure}
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/responsive_energy_result.eps, width=8cm}
+%\vspace{-0.2in}
+\end{center}
+\caption{Energy saving percentage normalized to Ondemand governor}
+\label{fig:responsive_energy_result}
+\end{figure}
+
+Although the proposed scheme does not provide large power saving for the responsive applications, DT-ware scheduling and
+thread packing is quite effective in reducing the delay. Figure~\ref{fig:responsive_latency_result} shows 
+the normalized delay for the responsive applications. Among the three techniques, fixing a dominant thread to
+a core reduces the delay significantly for the responsive applications. A dominant thread can use
+caches without any pollution from other threads, and do not need to be migrated between cores.
+Figure~\ref{fig:responsive_energy_result} shows the energy saving for the responsive applications. 
+Since the delay is significantly reduced by the proposed scheduing scheme, the actual energy consumption
+is reduced, even if the power may increase slightly as shown in Figure~\ref{fig:responsive_power}.
+The overall energy saving can be from 5\% to 10\% across the 5 responsive applications.
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/responsive_EDP_result.eps, width=8cm}
+%\vspace{-0.2in}
+\end{center}
+\caption{ED\textsuperscript{2}P Improvement percentage normalized to Ondemand governor}
+\label{fig:responsive_EDP_result}
+\end{figure}
+
+Figure~\ref{fig:responsive_EDP_result} shows the ED\textsuperscript{2}P improvements by the proposed technique.
+For the responsive applications, the fast system response is critical for user experience in mobile platforms,
+as the increasing computational power with multi-cores is supposed to improve the system responsiveness.
+In the figure, ED\textsuperscript{2}P improvements are signifcant from 10-33\% for the four applications,
+except for the pdf reader.
+
+\section{System Reponsiveness}
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/interactive_UX_result.eps, width=8cm}
+%\vspace{-0.2in}
+\end{center}
+\caption{User satisfaction test normalized to Ondemand governor}
+\label{fig:interactive_UX_result}
+\end{figure}
+
+To assess the system responsiveness for the four interactive applications, we conduct a user study.
+We asked 13 users to evaluate the effect of our techniques on the user satisfaction. 
+A volunteer uses applications with ondemand governor, assuming the governor satisfy all users, and experience the application execution first 
+with the baseline governor. 
+After that, the user tries the same application with the proposed governor without any notification 
+to identify whether the volunteers detect potential poor interactivity.  
+Figure~\ref{fig:interactive_UX_result} shows the results of our user study for four applications. 
+Only one user reports a minor slowdown for a game, among 13 users for four applications.
+The results show many users do not sense the performance loss for the majority of applications.
+
+\begin{comment}
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/latency_different_headroom_size.eps, width=7cm}
+\vspace{-0.2in}
+\end{center}
+\caption{Latency between user input and frequency raising}
+\label{fig:latency_different_headroom_size}
+\end{figure}
+
+The second method for system responsiveness is to check whether CPU utilization reaches 99-100\%, meaning the current
+frequency setting can be too low for the current CPU load. Such a low frequency setting can degrade the application 
+performance, as the application cannot receive enough CPU resource.
+
+\end{comment}

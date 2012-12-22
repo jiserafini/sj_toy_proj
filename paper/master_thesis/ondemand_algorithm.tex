@@ -1,0 +1,32 @@
+\begin{algorithm}[t]
+\caption{Ondemand Governor algorithm}
+\label{algo:ondemand}
+\begin{algorithmic}
+{
+%\FOR {every sampling rate}
+\FOR {every core in the CPU} 
+\STATE get $utilization$ since last check
+\STATE
+\STATE {\bf if} $utilization > UP\_THRESHOLD$
+\STATE \quad increase frequency to MAX
+
+\STATE
+\STATE {\bf if} $utilization < DOWN\_THRESHOLD$
+\STATE \quad {\bf then} decrease frequency to next low one
+\ENDFOR
+%\ENDFOR
+}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{comment}
+repeat every sampling rate
+	for every core in the CPU
+		get utilization since last check
+		if (utilization > UP_THRESHOLD)
+			increase frequency to MAX
+		elif (utilization < DOWN_THRESHOLD)
+			decrease frequency to next low one
+
+
+\end{comment}

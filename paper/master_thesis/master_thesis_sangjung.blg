@@ -1,0 +1,47 @@
+This is BibTeX, Version 0.99c (TeX Live 2009/Debian)
+The top-level auxiliary file: master_thesis_sangjung.aux
+The style file: acm.bst
+Database file #1: references.bib
+Warning--to sort, need author or key in monkeyrunner
+You've used 22 entries,
+            2253 wiz_defined-function locations,
+            674 strings with 9445 characters,
+and the built_in function-call counts, 10876 in all, are:
+= -- 1061
+> -- 508
+< -- 0
++ -- 209
+- -- 186
+* -- 832
+:= -- 1573
+add.period$ -- 64
+call.type$ -- 22
+change.case$ -- 159
+chr.to.int$ -- 0
+cite$ -- 23
+duplicate$ -- 493
+empty$ -- 877
+format.name$ -- 186
+if$ -- 2416
+int.to.chr$ -- 0
+int.to.str$ -- 22
+missing$ -- 21
+newline$ -- 111
+num.names$ -- 42
+pop$ -- 193
+preamble$ -- 1
+purify$ -- 137
+quote$ -- 0
+skip$ -- 381
+stack$ -- 0
+substring$ -- 700
+swap$ -- 193
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 88
+warning$ -- 1
+while$ -- 100
+width$ -- 24
+write$ -- 253
+(There was 1 warning)
