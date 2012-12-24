@@ -5,6 +5,28 @@
 \subsection{Ondemand Governor}
 
 
+\subsubsection{주요 설정 parameter}
+
+
+\textbf{powersave\_bias} \\
+기본적으로(powersave\_bias가 0인 경우) Ondemand governor는 idle time을 가장 최소로 workload를 마칠 수 있는 minimum frequency를 선택한다. 
+하지만 더 많은 power saving을 원하는 경우, powersave\_bias가 설정되어 있으면 기본적으로 Ondemand governor가 설정하는 frequency보다 더 낮게 설정된다. 
+이 값은 1 - 1000 사이이며, 이 값에 따라서 frequency가 낮아지게 된다. 
+예를 들어, powersave\_bias가 100으로 설정되었고, governor는 2000MHz를 frequency로 선택한 경우, 2000 - (2000 *100/1000) = 1800MHz가 다음에 수행될 frequency로 선택되며, 
+HW의 지원여부에 따라서 가장 가까운 frequency로 설정된다. 
+%Reference: http://publib.boulder.ibm.com/infocenter/lnxinfo/v3r0m0/index.jsp?topic=%2Fliaai%2Fcpufreq%2FTheOndemandGovernor.htm
+
+\begin{comment}
+\begin{compactenum}
+  \item powersavei\_bias
+    \begin{compactenum}
+      \item 
+    \end{compactenum}
+\end{compactenum}
+\end{comment}
+
+
+
 \subsubsection{주요 구조체 및 상수}
 
 \begin{lstlisting}
@@ -247,7 +269,7 @@ static int __init cpufreq_gov_dbs_init(void)
 \vspace{\baselineskip}
 
 cpufreq\_register\_governor() 함수는 cpufreq\_governor 구조체를 인자로 받으며, Ondemand의 경우 다음과 같이 해당 구조체가 설정되었다. 
-여기서 중요한 인자는 cpufreq\_governor\_dbs로 함수 포인터로 governor가 설정/해지/변경(?) 될때마다 해당 함수가 callback으로 호출된다. 
+여기서 중요한 인자는 cpufreq\_governor\_dbs로 함수 포인터로 governor가 설정/해지/변경 될때마다 해당 함수가 callback으로 호출된다. 
 \begin{lstlisting}
 #ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND
 static
@@ -325,7 +347,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
         this_dbs_info->cpu = cpu;
         this_dbs_info->rate_mult = 1;
 
-        /* Get freq_table of each core & Set freq_lo as 0
+        /* Get freq_table of each core & Set freq_lo as 0 */
         ondemand_powersave_bias_init_cpu(cpu);
 
 
@@ -378,3 +400,393 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 
 
 \subsubsection{Timer 관련 함수}
+timer를 초기화하는 dbsi\_timer\_init() 함수에서는 적절한 sampling rate을 계산하여,
+delayed worker를 이용하여 do\_dbs\_timer()가 delay jiffies 이후에 호출되도록 한다. 
+\begin{lstlisting}
+static inline void dbs_timer_init(struct cpu_dbs_info_s *dbs_info)
+{
+    /* find approprite sampling rate(usec) and convert into jiffies */
+    /* We want all CPUs to do sampling nearly on same jiffy */
+    int delay = usecs_to_jiffies(effective_sampling_rate());
+
+    if (num_online_cpus() > 1)
+        delay -= jiffies % delay;
+
+    /* Add delayed worker
+    do_dbs_timer() function is called after delay jiffies */
+    dbs_info->sample_type = DBS_NORMAL_SAMPLE;
+    INIT_DELAYED_WORK_DEFERRABLE(&dbs_info->work, do_dbs_timer);
+    schedule_delayed_work_on(dbs_info->cpu, &dbs_info->work, delay);
+    dbs_info->activated = true;
+}
+\end{lstlisting}
+
+버전마다 조금씩 다르지만 sampling rate, 즉 delay할 시간을 결정할 때에
+effective\_sampling\_rate() 함수와 같이 QoS 등을 고려하여 가장 적절한 sampling rate을 찾아서 반환하는 경우도 있다. 
+\begin{lstlisting}
+static unsigned int effective_sampling_rate(void)
+{
+    unsigned int effective;
+
+    if (dbs_tuners_ins.dvfs_lat_qos_wants)
+        effective = min(dbs_tuners_ins.dvfs_lat_qos_wants,
+                dbs_tuners_ins.sampling_rate);
+    else
+        effective = dbs_tuners_ins.sampling_rate;
+
+    return max(effective, min_sampling_rate);
+}
+\end{lstlisting}
+do\_dbs\_timer() 함수는 sampling rate 마다 주기적으로 호출되는 함수이다. 
+이 함수에서는 policy를 공유하는 core의 load에 맞추어 frequency를 조절하고, 
+다시 delayed worker에 재등록하는 동작을 반복한다. 세부 동작은 다음과 같다. 
+
+\begin{compactenum}
+\item 코드가 수행 중인 cpu, per cpu data, sample\_type을 가지고 온다. 
+\item powersave\_bias가 설정되어 있지 않거나, sample\_type이 DBS\_NORMAL\_SAMPLE인지 확인한다. 
+대부분의 경우가 이에 해당한다. 
+\item policy를 공유하는 모든 core의 load를 고려하여 dbs\_check\_cpu() 함수에서 frequency를 변경한다. 
+이 함수는 다음에 좀 더 자세히 설명한다. 
+\item dbs\_info->freqi\_lo가 설정되어 있는 경우에는, timer의 delay를 freq\_hi\_jiffies으로 설정한다. 
+즉 해당 core의 sampling rate을 변경하는 것이다. powersave\_bias\_target() 함수에서 dbs\_info->freq\_lo를 설정한다.
+\item dbs\_info->freq\_lo가 설정되어 있지 않은 경우, 즉 대부분의 경우에는 동일한 sampling rate으로 timer를 설정한다. 
+이때 jiffies 단위로 지연시킬 시간을 정렬한다. 
+\item powersave\_bias가 설정되었거나, DBS\_SUB\_SAMPLE인 경우, frequency는 무조건 dbs\_info->freq\_lo로 설정된다.
+\item 다음에 수행할 delayed worker에 재등록한다. 
+\end{compactenum}
+
+\begin{lstlisting}
+static void do_dbs_timer(struct work_struct *work)
+{
+    /* 1) Get cpu, cpu_dbs_info_s data of cpu & sample_type */
+    struct cpu_dbs_info_s *dbs_info =
+        container_of(work, struct cpu_dbs_info_s, work.work);
+    unsigned int cpu = dbs_info->cpu;
+    int sample_type = dbs_info->sample_type;
+
+    int delay;
+
+    mutex_lock(&dbs_info->timer_mutex);
+    dbs_info->sample_type = DBS_NORMAL_SAMPLE;
+
+    /* 2) Check both powersave_bias and sample_type */
+    if (!dbs_tuners_ins.powersave_bias ||
+        sample_type == DBS_NORMAL_SAMPLE) {
+
+	      /* 3) Set the cpu frequency according to the max load of cpus */
+        dbs_check_cpu(dbs_info);
+
+        /* 4) When freq_lo is set, each core has its own sampling rate */
+        if (dbs_info->freq_lo) {
+            /* Setup timer for SUB_SAMPLE */
+            dbs_info->sample_type = DBS_SUB_SAMPLE;
+            delay = dbs_info->freq_hi_jiffies;
+        } else {
+            /* We want all CPUs to do sampling nearly on
+             * same jiffy
+             */
+            /* 5) every core has the same sampling rate */
+            delay = usecs_to_jiffies(effective_sampling_rate()
+                * dbs_info->rate_mult);
+
+            if (num_online_cpus() > 1)
+                delay -= jiffies % delay;
+        }
+    } else {
+        /* 6) When powersave_bias is set, then frequency always set freq_lo */
+        __cpufreq_driver_target(dbs_info->cur_policy,
+            dbs_info->freq_lo, CPUFREQ_RELATION_H);
+        delay = dbs_info->freq_lo_jiffies;
+    }
+
+
+    /* 7) Reregister the timer function again */
+    schedule_delayed_work_on(cpu, &dbs_info->work, delay);
+    mutex_unlock(&dbs_info->timer_mutex);
+}
+\end{lstlisting}
+
+\subsubsection{cpu의 load 계산 및 frequency 변경}
+dbs\_check\_cpu() 함수에서 policy를 공유하는 core들을 확인하고, 실제 frequency를 변경하는 작업을 한다. 
+이 함수의 세부 동작은 다음과 같다. 
+\begin{compactenum}
+\item 현재 core의 cur\_wall\_time, cur\_idle\_time, cur\_iowait\_time를 측정하여
+sampling rate 동안의 delta인 wall\_time, idle\_time, iowait\_time을 계산한다. 
+측정한 값은 다음 턴을 위해서 per cpu data에 저장한다.
+\item 현재 core의 frequency를 고려한 load를 계산한다. (0 $\sim$ 100)
+\item sampling rate 동안의 평균 frequency를 cpu driver를 이용하여 측정한다
+Exynos와 같이 지원하지 않는 경우, 현재 freqnecy를 대신 사용한다.
+\item frequency와 무관한 core 자체에 걸린 load를 계산(load\_freq)를 계산하고, 
+policy를 공유하는 core 중에서 최대값을 max\_load\_freq에 저장한다. 
+예를 들어 1000MHz의 50\%인 경우와 500MHz의 100\%는 동일한 load\_freq를 갖는다.
+\item max\_load\_freq가 현재 frequency의 up\_threshold를 넘었는지 확인한다. 
+tickless kernel인 경우에는 up\_threshold가 95이기 때문에, 
+max\_load\_freq가 현재 frequency에서 95\%이상의 load가 되는지 확인하는 것이다. 
+만약 그런 경우, 변경할 frequency(target)을 max로 변경하고 종료한다. 
+\item 특별히 Exynos에서는 현재 frequency가 min이고, frequency를 낮춰야하는 경우, 
+더 이상 frequency를 낮출수 없기 때문에 종료한다. 
+\item max\_load\_freq가 현재 frequency의 (up\_threshold-down\_differential)보다 작은지 확인한다. 
+만약 그런 경우, 변경할 freqneucy(freq\_next)를 계산하여 설정한다. 
+예를 들어, 현재 1000Mhz로 동작 중인 CPU의 load가 30\%이면, max\_load\_freq = 1000 * 30 = 30000이 된다. 
+그렇기 때문에 freq\_next는 30000/92 = 326이 되고, CPUFREQ\_RELATION\_L로 인하여 300MHz로 설정이 된다. 
+powersave\_bias가 설정된 경우에는 powersave\_bias\_target() 함수에 의해서 다음에 설정할 frequency가 결정된다.
+\end{compactenum}
+
+\begin{lstlisting}
+static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
+{
+    unsigned int max_load_freq;
+
+    struct cpufreq_policy *policy;
+    unsigned int j;
+
+    this_dbs_info->freq_lo = 0;
+    policy = this_dbs_info->cur_policy;
+
+    /*
+     * Every sampling_rate, we check, if current idle time is less
+     * than 20% (default), then we try to increase frequency.
+     * Every sampling_rate, we look for a the lowest
+     * frequency which can sustain the load while keeping idle time over
+     * 30%. If such a frequency exist, we try to decrease to this frequency.
+     *
+     * Any frequency increase takes it to the maximum frequency.
+     * Frequency reduction happens at minimum steps of
+     * 5% (default) of current frequency
+     */
+
+    /* Get Absolute Load - in terms of freq */
+    max_load_freq = 0;
+
+    /* iterate each cpu that is shared the policy */
+    for_each_cpu(j, policy->cpus) {
+
+        /* 1) calculate wall_time, idle_time, iowait_time */
+        struct cpu_dbs_info_s *j_dbs_info;
+        cputime64_t cur_wall_time, cur_idle_time, cur_iowait_time;
+        unsigned int idle_time, wall_time, iowait_time;
+        unsigned int load, load_freq;
+        int freq_avg;
+
+        j_dbs_info = &per_cpu(od_cpu_dbs_info, j);
+
+        cur_idle_time = get_cpu_idle_time(j, &cur_wall_time);
+        cur_iowait_time = get_cpu_iowait_time(j, &cur_wall_time);
+
+        wall_time = (unsigned int) cputime64_sub(cur_wall_time,
+                j_dbs_info->prev_cpu_wall);
+        j_dbs_info->prev_cpu_wall = cur_wall_time;
+
+        idle_time = (unsigned int) cputime64_sub(cur_idle_time,
+                j_dbs_info->prev_cpu_idle);
+        j_dbs_info->prev_cpu_idle = cur_idle_time;
+
+        iowait_time = (unsigned int) cputime64_sub(cur_iowait_time,
+                j_dbs_info->prev_cpu_iowait);
+        j_dbs_info->prev_cpu_iowait = cur_iowait_time;
+
+        if (dbs_tuners_ins.ignore_nice) {
+            cputime64_t cur_nice;
+            unsigned long cur_nice_jiffies;
+
+            cur_nice = cputime64_sub(kstat_cpu(j).cpustat.nice,
+                     j_dbs_info->prev_cpu_nice);
+            /*
+             * Assumption: nice time between sampling periods will
+             * be less than 2^32 jiffies for 32 bit sys
+             */
+            cur_nice_jiffies = (unsigned long)
+                    cputime64_to_jiffies64(cur_nice);
+
+            j_dbs_info->prev_cpu_nice = kstat_cpu(j).cpustat.nice;
+            idle_time += jiffies_to_usecs(cur_nice_jiffies);
+        }
+
+        /*
+         * For the purpose of ondemand, waiting for disk IO is an
+         * indication that you're performance critical, and not that
+         * the system is actually idle. So subtract the iowait time
+         * from the cpu idle time.
+         */
+	
+	/* io_is_busy is for only x86. Not support for ARM */
+        if (dbs_tuners_ins.io_is_busy && idle_time >= iowait_time)
+            idle_time -= iowait_time;
+
+        if (unlikely(!wall_time || wall_time < idle_time))
+            continue;
+
+	/* 2) calculate the load considering core's frequency */
+        load = 100 * (wall_time - idle_time) / wall_time;
+
+        /* 3) get average frequency during sampling rate */
+        freq_avg = __cpufreq_driver_getavg(policy, j);
+        if (freq_avg <= 0)
+            freq_avg = policy->cur;
+
+        /* 4) calculate absolute load and 
+        find max_load_freq among absolute load of all shared policy core */
+        load_freq = load * freq_avg;
+        if (load_freq > max_load_freq)
+            max_load_freq = load_freq;
+    }
+
+    /* 5) Check the frequency should be raised */
+    if (max_load_freq > dbs_tuners_ins.up_threshold * policy->cur) {
+	
+        int inc = (policy->max * dbs_tuners_ins.freq_step) / 100;
+        int target = min(policy->max, policy->cur + inc);
+
+        if (policy->cur < policy->max && target == policy->max)
+            this_dbs_info->rate_mult =
+                dbs_tuners_ins.sampling_down_factor;
+
+        dbs_freq_increase(policy, target);
+        return;
+    }
+
+    /* 6) Exynos turning */
+#if !defined(CONFIG_ARCH_EXYNOS4) && !defined(CONFIG_ARCH_EXYNOS5)
+    /* if we cannot reduce the frequency anymore, break out early */
+    if (policy->cur == policy->min)
+        return;
+#endif
+
+    /*
+     * The optimal frequency is the frequency that is the lowest that
+     * can support the current CPU usage without triggering the up
+     * policy. To be safe, we focus 10 points under the threshold.
+     */
+
+    /* 7) Check the frequency should be lowed */
+    if (max_load_freq <
+        (dbs_tuners_ins.up_threshold - dbs_tuners_ins.down_differential) *
+         policy->cur) {
+        unsigned int freq_next;
+
+        freq_next = max_load_freq /
+                (dbs_tuners_ins.up_threshold -
+                 dbs_tuners_ins.down_differential);
+
+        /* No longer fully busy, reset rate_mult */
+        this_dbs_info->rate_mult = 1;
+
+        if (freq_next < policy->min)
+            freq_next = policy->min;
+
+        if (!dbs_tuners_ins.powersave_bias) {
+            __cpufreq_driver_target(policy, freq_next,
+                    CPUFREQ_RELATION_L);
+        } else {
+            int freq = powersave_bias_target(policy, freq_next,
+                    CPUFREQ_RELATION_L);
+            __cpufreq_driver_target(policy, freq,
+                CPUFREQ_RELATION_L);
+        }
+    }
+}
+\end{lstlisting}
+
+powersave\_bias가 설정된 경우에는 powersave\_bias\_target() 함수에 의해서 다음에 설정할 frequency가 결정된다.
+\begin{lstlisting}
+/*
+ * Find right freq to be set now with powersave_bias on.
+ * Returns the freq_hi to be used right now and will set freq_hi_jiffies,
+ * freq_lo, and freq_lo_jiffies in percpu area for averaging freqs.
+ */
+static unsigned int powersave_bias_target(struct cpufreq_policy *policy,
+                      unsigned int freq_next,
+                      unsigned int relation)
+{
+    unsigned int freq_req, freq_reduc, freq_avg;
+    unsigned int freq_hi, freq_lo;
+    unsigned int index = 0;
+    unsigned int jiffies_total, jiffies_hi, jiffies_lo;
+    struct cpu_dbs_info_s *dbs_info = &per_cpu(od_cpu_dbs_info,
+                           policy->cpu);
+
+    if (!dbs_info->freq_table) {
+        dbs_info->freq_lo = 0;
+        dbs_info->freq_lo_jiffies = 0;
+        return freq_next;
+    }
+
+    cpufreq_frequency_table_target(policy, dbs_info->freq_table, freq_next,
+            relation, &index);
+    freq_req = dbs_info->freq_table[index].frequency;
+    freq_reduc = freq_req * dbs_tuners_ins.powersave_bias / 1000;
+    freq_avg = freq_req - freq_reduc;
+
+    /* Find freq bounds for freq_avg in freq_table */
+    index = 0;
+    cpufreq_frequency_table_target(policy, dbs_info->freq_table, freq_avg,
+            CPUFREQ_RELATION_H, &index);
+    freq_lo = dbs_info->freq_table[index].frequency;
+    index = 0;
+    cpufreq_frequency_table_target(policy, dbs_info->freq_table, freq_avg,
+            CPUFREQ_RELATION_L, &index);
+    freq_hi = dbs_info->freq_table[index].frequency;
+
+    /* Find out how long we have to be in hi and lo freqs */
+    if (freq_hi == freq_lo) {
+        dbs_info->freq_lo = 0;
+        dbs_info->freq_lo_jiffies = 0;
+        return freq_lo;
+    }
+    jiffies_total = usecs_to_jiffies(effective_sampling_rate());
+    jiffies_hi = (freq_avg - freq_lo) * jiffies_total;
+    jiffies_hi += ((freq_hi - freq_lo) / 2);
+    jiffies_hi /= (freq_hi - freq_lo);
+    jiffies_lo = jiffies_total - jiffies_hi;
+    dbs_info->freq_lo = freq_lo;
+    dbs_info->freq_lo_jiffies = jiffies_lo;
+    dbs_info->freq_hi_jiffies = jiffies_hi;
+    return freq_hi;
+}
+\end{lstlisting}
+
+
+\subsubsection{CPUFREQ\_GOV\_STOP 이벤트 처리}
+이제 cpufreq\_governor\_dbs() 함수에서 다루지 않은 CPUFREQ\_GOV\_STOP에 대해서 알아보겠다. 
+이 이벤트는 더이상 해당 governor가 사용되지 않을 때 발생하는 이벤트이기 때문에, 주기적으로 수행하던 timer 함수 등을 정리해야 한다. 
+세부 동작은 다음과 같다. 
+\begin{compactenum}
+\item 현재 수행 중인 delayed worker를 취소시킨다. 
+\item governor 전반에서 쓰이는 변수를 수정할 예정이기 때문에, mutex lock을 설정하고 per cpu data의 timer mutex를 해제하고, dbs\_enable을 하나 감소시킨다. 
+\item dbs\_enable가 0인 경우, 즉 더 이상 이 governor를 사용하는 core가 없는 경우, sysfs에서 해당 파일을 제거한다.
+\end{compactenum}
+
+\begin{lstlisting}
+    case CPUFREQ_GOV_STOP:
+        dbs_timer_exit(this_dbs_info);
+
+        mutex_lock(&dbs_mutex);
+        mutex_destroy(&this_dbs_info->timer_mutex);
+        dbs_enable--;
+        mutex_unlock(&dbs_mutex);
+        if (!dbs_enable)
+            sysfs_remove_group(cpufreq_global_kobject,
+                       &dbs_attr_group);
+
+        break;
+\end{lstlisting}
+
+
+\subsubsection{CPUFREQ\_GOV\_LIMITS 이벤트 처리}
+마지막으로 governor의 max/min frequency가 변경되었을 때 발생하는 CPUFREQ\_GOV\_LIMITS에 대해서 알아보겠다. 
+각 core별로 변경된 policy의 max frequency가 현재 frequency보다 작은 경우, 
+변경된 policy의 max frequency로 변경하고, 변경된 policy의 min frequency가 현재 frequency보다  경우, 
+변경된 policy의 min frequency로 변경하면 된다. 
+\begin{lstlisting}
+    case CPUFREQ_GOV_LIMITS:
+        mutex_lock(&this_dbs_info->timer_mutex);
+        if (policy->max < this_dbs_info->cur_policy->cur)
+            __cpufreq_driver_target(this_dbs_info->cur_policy,
+                policy->max, CPUFREQ_RELATION_H);
+        else if (policy->min > this_dbs_info->cur_policy->cur)
+            __cpufreq_driver_target(this_dbs_info->cur_policy,
+                policy->min, CPUFREQ_RELATION_L);
+        mutex_unlock(&this_dbs_info->timer_mutex);
+        break;
+    }
+\end{lstlisting}

@@ -1,0 +1,157 @@
+\section{CPUFreq 분석}
+
+\subsection{CPU affinity 설정 분석}
+
+\subsubsection{개요}
+Process/Thread에 CPU affinity를 설정하면 Multicore CPU에서 특정 core set에서만 수행되도록 설정할 수 있다. 
+
+\begin{lstlisting}
+int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *mask);
+int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *mask);
+\end{lstlisting}
+
+예를 들어 1개의 프로세스를 독립적으로 할당하고, 다른 코어를 다른 프로세스가 사용할수 있도록 함으로써, 
+독립적으로 수행되는 코어는 context switching없이 독립적으로 수행할 수 있다. 
+또한 다른 processes에 의해서 cache가 invalid되지 않는 효과도 얻는다. 
+
+리눅스 시스템의 스케줄링 정책은 process가 아닌 thread 단위이기 때문에, thread 단위로 affinity 설정이 가능하다. 
+첫 번째 인자로 전달되는 pid는 thread ID로 gettid() 함수나 getpid() - thread group의 main thread ID(tgid) - 의 결과값을 인자로 전달한다. 
+cpu\_set\_t *mask는 Multicore CPU의 각 core 별 설정 값을 bitmask로 설정한 것으로, 
+task\_struct의 cpus\_allowed의 값을 변경할 때에는 실제 machine에 존재하는 CPU mask(cpu\_present\_mask)와 AND 연산한 결과로 설정된다. 
+
+\subsubsection{sched\_setaffinity() 시스템 콜 분석}
+사용자 메모리 공간에 있는 cpumask를 커널 공간으로 복사한 후, sched\_setaffinity() 함수를 호출한다. 
+전달되는 인자는 system call 호출시와 동일하다. 
+\begin{lstlisting}
+/**
+ * sys_sched_setaffinity - set the cpu affinity of a process
+ * @pid: pid of the process
+ * @len: length in bytes of the bitmask pointed to by user_mask_ptr
+ * @user_mask_ptr: user-space pointer to the new cpu mask
+ */
+SYSCALL_DEFINE3(sched_setaffinity, pid_t, pid, unsigned int, len,
+        unsigned long __user *, user_mask_ptr)
+{
+    cpumask_var_t new_mask;
+    int retval;
+
+    if (!alloc_cpumask_var(&new_mask, GFP_KERNEL))
+        return -ENOMEM;
+
+    retval = get_user_cpu_mask(user_mask_ptr, len, new_mask);
+    if (retval == 0)
+        retval = sched_setaffinity(pid, new_mask);
+    free_cpumask_var(new_mask);
+    return retval;
+}
+\end{lstlisting}
+
+\subsubsection{sched\_setaffinity() 함수 분석}
+
+
+
+\begin{compactenum}
+\item get\_online\_cpus() 함수를 호출하여 CPU hotplugging을 비활성화한다.  
+내부적으로 cpu\_hotplug.refcount를 1 증가시키는데, 그 이유는 cpu\_hotplug.refcount이 0이 아닌 경우, cpu\_online\_map을 변경할 수 없기 때문이다. 
+자세한 내용은 'linux/cpu.h'에 나와있다. 
+\item RCU에서 데이터를 참조하기 위한 Critical Section을 시작 했다는 것을 통지한다. 
+\item find\_process\_by\_pid() 함수를 이용하여 pid 번호를 이용하여 task\_struct 구조체 포인터를 얻어온다. 
+\item task\_struct가 수정 중임을 표시한다. 
+현재 프로세스 테이터에 대한 사용이 있을 때 get\_task\_struct() 함수를 이용하여 task\_struct의 usage값을 증가 시킨다. 
+사용이 끝나면 put\_task\_struct() 함수를 호출하여 task\_struct의 usage값을 감소 시킨다. 
+즉, task\_struct 구조체에 대한 데이터 조작이 있을 때는 이 값은 0보다 큰 값을 갖게 된다. \\
+참고자료: \url{http://cdcsman.blogspot.kr/2008/03/linux-kernel-26-2.html}
+\item RCU의 read lock을 해제한다. 
+\item cpus\_allowed, new\_mask에 사용할 메모리를 할당한다.
+\item 인자로 전달된 task\_struct p와 현재 process의 UID가 일치하는지(check\_same\_owner()), 
+현재 task가 인자로 전달된 task p의 prority를 조절할 수 있는지(task\_ns\_capable())를 확인한다. 
+\item cpuset\_cpus\_allowed() 함수를 호출하여 해당 task\_struct의 cpus\_allowed cpumask를 얻는다. 
+이때 online 상태인 cpumask만을 얻기 위하여 guarantee\_online\_cpus() 함수를 내부적으로 사용한다.
+\item 인자로 전달받은 in\_mask과 cpus\_allowed의 AND 연산을 수행한다. 
+즉, 이전에 사용가능한 cores와 현재 사용가능한 cores의 교집합이 새롭게 설정될 cpus\_allowed가 된다. 
+\item set\_cpus\_allowed\_ptr() 함수를 호출하여 task\_struct p의 cpus\_allowed를 new\_mask로 설정한다. 
+만약 p가 new\_mask에 해당하지 않는 cores에서 수행 중인 경우, migration이 발생한다. 
+\item 에러가 발생한 경우, 적절한 조취를 취한 후 재 시도한다. 
+\end{compactenum}
+
+\begin{lstlisting}
+long sched_setaffinity(pid_t pid, const struct cpumask *in_mask)
+{
+    cpumask_var_t cpus_allowed, new_mask;
+    struct task_struct *p;
+    int retval;
+	
+    // 1) Disable CPU hotplugging
+    get_online_cpus();
+
+    // 2) Set RCU read lock
+    rcu_read_lock();
+
+    // 3) Get tast_struct pointer related to pid
+    p = find_process_by_pid(pid);
+    if (!p) {
+        rcu_read_unlock();
+        put_online_cpus();
+        return -ESRCH;
+    }    
+
+    /* Prevent p going away */
+    // 4) Mark task_struct p is modifying
+    get_task_struct(p);
+
+    // 5) Unlock rcu read lock
+    rcu_read_unlock();
+
+    // 6) allocate memory
+    if (!alloc_cpumask_var(&cpus_allowed, GFP_KERNEL)) {
+        retval = -ENOMEM;
+        goto out_put_task;
+    }    
+    if (!alloc_cpumask_var(&new_mask, GFP_KERNEL)) {
+        retval = -ENOMEM;
+        goto out_free_cpus_allowed;
+    }    
+    retval = -EPERM;
+
+    // 7) Check the permission
+    if (!check_same_owner(p) && !task_ns_capable(p, CAP_SYS_NICE))
+        goto out_unlock;
+
+    retval = security_task_setscheduler(p);
+    if (retval)
+        goto out_unlock;
+
+    // 8) Get cpus_allowed of task_struct p
+    cpuset_cpus_allowed(p, cpus_allowed);
+
+    // 9) Calculate new_mask
+    cpumask_and(new_mask, in_mask, cpus_allowed);
+
+again:
+    // 10) Set the cpus_allowed of p as new_mask
+    retval = set_cpus_allowed_ptr(p, new_mask);
+
+    // 11) If error occurs, then redo again.
+    if (!retval) {
+        cpuset_cpus_allowed(p, cpus_allowed);
+        if (!cpumask_subset(new_mask, cpus_allowed)) {
+            /*
+             * We must have raced with a concurrent cpuset
+             * update. Just reset the cpus_allowed to the
+             * cpuset's cpus_allowed
+             */
+            cpumask_copy(new_mask, cpus_allowed);  
+            goto again;
+        }
+    }
+out_unlock: 
+    free_cpumask_var(new_mask); 
+out_free_cpus_allowed:
+    free_cpumask_var(cpus_allowed);
+out_put_task:
+    put_task_struct(p);
+    put_online_cpus();
+    return retval;
+}
+\end{lstlisting}
+

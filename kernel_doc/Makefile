@@ -1,4 +1,4 @@
 
 
 clean:
-	rm -rf *.aux *.log *.pdf
+	rm -rf *.aux *.log *.pdf *~
