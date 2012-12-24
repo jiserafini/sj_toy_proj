@@ -17,3 +17,5 @@ sudo apt-get install gnupg flex bison gperf build-essential \
 	libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 \
 	libgl1-mesa-dev g++-multilib mingw32 openjdk-6-jdk tofrodos \
 	python-markdown libxml2-utils xsltproc zlib1g-dev:i386
+
+sudo apt-get install xpad
