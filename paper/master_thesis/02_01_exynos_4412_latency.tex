@@ -9,19 +9,20 @@
 				&	Off	& 4.346 \\
 \hline
 \multicolumn{2}{c|}{DVFS}	&	1.045	\\
-\hline
-\multirow{2}{*}{Idle}		&	Clock gating	&	0.001 \\ \cline{2-3}
-				&	HW power down	& 	0.300 \\
 \hline \hline
 \end{tabular}
 \end{footnotesize}
 \end{center}
 %\vspace*{-0.15in}
 \caption{Latency of Exynos 4412 AP}
+\label{tab:exynos_latency}
 % %\vspace*{-0.2in}
 \end{table}
 
 \begin{comment}
+\multirow{2}{*}{Idle}		&	Clock gating	&	0.001 \\ \cline{2-3}
+				&	HW power down	& 	0.300 \\
+
 [Clock gating(WFI(Wait For Interrupt))]
 
 WFI and WFE Standby modes disable most of the clocks of a processor, while keeping

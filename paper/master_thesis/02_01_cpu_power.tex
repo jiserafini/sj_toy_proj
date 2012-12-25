@@ -83,6 +83,18 @@ using two cores at 1.2GHz consumes 50\% more power than using four cores at 600M
 However, such a power management for spreading computation to multiple cores as evenly as possible, depends
 on the available TLP and also how each thread uses CPU resources. 
 
+Modern mobile CPU supports various low power techniques such as CPU Hotplugging and DVFS.
+However, the latency is different for each mode. 
+Table~\ref{tab:exynos_latency} shows the different latency of each mode.
+In all cases, CPU Hotplugging has long latency in comparison with DVFS, 
+especially CPU Hotplugging-On is 17 times longer. 
+In mobile system, long latency may degrade user perceived performance 
+since the system cannot meet the applications' performance request. 
+According to previous experimental result, 
+DVFS is no significant power consumption difference in comparison with Hotplugging.
+
+\input{02_01_exynos_4412_latency}
+
 A strategy of using cores and DVFS can be inferred from the aforementioned analysis.
 Firstly, the clock frequency must be lowered to the point where the utilization is close to 100\%.
 If a balanced TLP is available, using two cores with a half clock frequency consume less power than
@@ -91,4 +103,3 @@ efficiency, since the current mobile multi-cores often do not support per-core D
 the clock frequency must be adjusted, and cores can be turned on or off, so that
 the utilization in both cores is closed to equally 100\%.
 
-\input{02_01_exynos_4412_latency}

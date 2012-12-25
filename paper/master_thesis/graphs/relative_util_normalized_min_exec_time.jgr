@@ -4,8 +4,9 @@ xaxis
 	min 0 max 50
 	no_draw_hash_marks
 	no_auto_hash_labels
-	size 7
+	label font Helvetica fontsize 12
 yaxis
+	size 1.8
 	min 0 max 30000
 
 	newcurve marktype x linetype solid
@@ -59,7 +60,7 @@ yaxis
         48 1.601973
         49 1
 
-newstring hjc vjc x -5 y 15000 rotate 90 fontsize 15 font Helvetica : Relative Util.\
+newstring hjc vjc x -12 y 15000 rotate 90 fontsize 10 font Helvetica : Relative Util.\
 Normalized to Minimum(%)
-newstring hjr vjc x 50 y -2000 fontsize 15 font Helvetica : Active Thread
+newstring hjr vjc x 50 y -2000 fontsize 10 font Helvetica : Active Thread
 
