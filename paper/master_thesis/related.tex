@@ -1,6 +1,6 @@
 \chapter{Related Work}
 
-There have been several recent studies for analyzing smartphone applications~\cite{characterinteractive, tmapp, anatomizing, WhySlowBrowser}.
+There have been several recent studies for analyzing smartphone applications~\cite{characterinteractive,anatomizing, tmapp, WhySlowBrowser}.
 Some work focus on web-browsing applications, with automation of user inputs for deterministic analysis~\cite{anatomizing, WhySlowBrowser}.
 Issa et al. and Gutierrez et al. propose a benchmark suite for smartphones,
 and characterize their system and architectural behaviors~\cite{characterinteractive, tmapp}. 
@@ -15,7 +15,7 @@ and show the significant skewed resource usage among threads.
 Since the battery-life is a crucial problem of smartphones,
 the power consumption pattern of smartphone has been widely studied.
 Carroll and Gernot analyze a breakdown of power distribution of each component in smartphone~\cite{smartphonepower}.
-They show that the communication module and display consume a significant portion of power.
+They show that the communication module and display consume a significant portion of power consumption.
 There have been several studies to model the power consumption of mobile platforms.
 Shye et al.  propose per-component power estimation methods, using the linear regression to build a model~\cite{intothewild}.
 Yoon et al. proposes an energy metering framework for mobile platforms by monitoring kernel activities~\cite{AppScope}.
@@ -23,7 +23,7 @@ Pathak et al. use system call tracing~\cite{powermodelsyscall} to model the powe
 and some studies generate power model online using battery voltage sensors~\cite{selfconstructive, accurateonline}. 
 In our work, we use a simple CPU power model similar to the ones used by Ma et al. and Kansal etal~\cite{VMpower, isca11DVFS}.
 
-There have been a significant body of work for energy saving with the DVFS mechanism~\cite{micro06DVFS, decomposition, Koala, isca11DVFS, packandcap}. 
+There have been a significant body of work for energy saving with the DVFS mechanism~\cite{decomposition, packandcap, micro06DVFS, isca11DVFS, Koala}. 
 Many studies target non-interactive server and desktop platforms with application continuously using CPUs with 100\% utilization.
 The studies maximizes the energy efficiency or the throughput under a power constraint.
 There are also DVFS mechanisms for interactive applications.
