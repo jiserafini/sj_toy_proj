@@ -11,8 +11,8 @@ power management system uses the on-demand governor.
 Although various OSes may have various of policies to control the CPUs using DVFS mechanisms 
 and one of the most widely used policies in mobile environment is {\tt on-demand} governor. 
 The on-demand governor changes CPU frequency in response to its load at run time.
-Performance can be slowed down if the load changes frequently, especially when the CPU load increases
-at a fast pace. when the CPU load increase suddenly, it may take several sampling periods
+Performance can be slowed down if the load changes frequently, especially when the CPU load increases at a fast pace. 
+When the CPU load increase suddenly, it may take several sampling periods
 to match the frequency to the increased CPU load.
 To avoid such a slow response to sudden load increases, the on-demand governor sets the highest available frequency 
 when the load exceeds the up-threshold value to meet the user's expectation of the performance.
