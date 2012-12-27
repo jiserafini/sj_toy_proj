@@ -1,0 +1,33 @@
+\subsection{Utility-based Power Management}
+
+In smartphone applications, cores are commonly underutilized, and the basic scheme for 
+power management is to reduce the clock frequency to maximize the CPU utilization.
+However, if the clock frequency is set to too low a frequency, the application can be slowed down
+to the level perceivable to the user. One of the most commonly used utility-based
+power management scheme is {\tt on-demand governor}. In this paper, our baseline
+power management system uses the on-demand governor.
+
+{\bf On-demand Governor: } 
+Although various OSes may have various of policies to control the CPUs using DVFS mechanisms 
+and one of the most widely used policies in mobile environment is {\tt on-demand} governor. 
+The on-demand governor changes CPU frequency in response to its load at run time.
+Performance can be slowed down if the load changes frequently, especially when the CPU load increases
+at a fast pace. when the CPU load increase suddenly, it may take several sampling periods
+to match the frequency to the increased CPU load.
+To avoid such a slow response to sudden load increases, the on-demand governor sets the highest available frequency 
+when the load exceeds the up-threshold value to meet the user's expectation of the performance.
+However, if the load falls below the down-threshold value, the frequency is decreased in steps.
+Other widely used governors such as {\tt interactive} developed by Google and {\tt PegasusQ} developed by Samsung
+are also based on the on-demand governor.
+Algorithm~\ref{algo:ondemand} shows the sketch of the policy. If the utilization is higher than {\tt up-threshold},
+the frequency is increased to the max frequency to improve the system responsiveness.
+
+There are two limitations of the on-demand governor. Firstly, a conservative approach to preserve responsiveness 
+may lead to unnecessary increase of energy consumption. It does not use any knowledge on the application
+behaviors, to determine whether such a conservative policy is necessary for the applications.
+Secondly,
+the power governor works independently from thread scheduling, potentially losing opportunities for
+further optimization. In this paper, based on the TLP and interaction phase analysis for mobile applications,
+we will propose an improved power management scheme. 
+
+\input{ondemand_algorithm}

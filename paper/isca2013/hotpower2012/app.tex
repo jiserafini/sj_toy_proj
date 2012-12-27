@@ -1,0 +1,107 @@
+\section{Interactive Application Behaviors}
+
+In this section, we characterize the behaviors of commercial smartphone applications. 
+We show how CPU utilization and TLP differ by applications and interactions.
+For interactive applications, depending on phases, the behaviors of an application vary 
+widely. Therefore, we decompose application phases into three types of phases. Firstly, a {\tt setup}
+phase initializes an application, or loads data for a new round of game. Secondly,
+a {\tt responsive} phase occurs when cores become significantly active only after a user interaction.
+In such a responsive phase, CPUs become idle or show low utilization sometime after the interaction, after
+the computation is completed to process the user interaction. A common example of
+the responsive phase is the interaction with a web browser application. Once
+a hyperlink is touched, the CPUs become active to render a new page. However,
+once the process is completed, the CPUs become idle again.
+
+Finally, in an {\tt interactive} phase, the application continuously conducts some work
+while users may interact with the application. For some games, such as a car racing game,
+CPUs process the game engine continuously regardless of user interactions. At the same time,
+user interactions may change the behaviors of such computational work.
+An application may exhibit only a subset of the three phases. 
+
+To show the detailed behaviors of applications, Figure~\ref{fig:interact_util_1cpu} presents
+the utilization of a single 1GHz core for a game application (Angry-bird) and a web browser.
+The dots represent user touch inputs on the touch screen.
+For the game application, during
+the change of a round, a setup phase initializes the new round. In an interactive phase,
+CPU utilization is maintained around 40\%, regardless of user interactions. 
+However, in the browser application, only {\tt setup} and {\tt response} phases are mostly
+shown. CPU utilization increases only when a user touch occurs, and the utilization
+drop soon after the interaction is processed.
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/angry_1cpu.eps, width=8cm}
+\vspace{-0.45in}
+\epsfig{figure=graphs/browser_1cpu.eps, width=8cm}
+\vspace{0.01in}
+\end{center}
+\caption{CPU util. and touch events with 1 core}
+\vspace{-0.2in}
+\label{fig:interact_util_1cpu} 
+\end{figure}
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/angry_2cpu.eps, width=8cm}
+\vspace{-0.45in}
+\epsfig{figure=graphs/browser_2cpu.eps, width=8cm}
+\vspace{0.01in}
+\end{center}
+\caption{CPU util. and touch events with 2 cores}
+\vspace{-0.2in}
+\label{fig:interact_util_2cpu}
+\end{figure}
+
+Figure~\ref{fig:interact_util_2cpu} presents the utilization changes with two cores.
+For both applications, there are some amount of TLP, although their behaviors are 
+quite different. For the game application, the parallelism in two cores differ significantly.
+CPU1 exhibits much a higher utilization than CPU0 in interactive phases, showing unbalanced
+loads among threads. In the browser application, both cores have similar loads.
+
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/angry_thread.eps, width=8cm}
+\vspace{-0.45in}
+\epsfig{figure=graphs/browser_thread.eps, width=8cm}
+\vspace{0.01in}
+\end{center}
+\caption{Application threads with 2 cores}
+\label{fig:threads}
+\end{figure}
+
+Figure~\ref{fig:threads} presents the CPU utilization of active threads with 2 core runs.
+For both applications, the top thread dominates core utilization. For the game application,
+there is only a small amount of utilization by the rest of threads, causing unbalanced loads
+in two cores. For the browser application, there are several other active threads, which
+can share the second core.
+
+We apply such phase-based analysis on 10 smartphone applications. For each type of phases,
+we show how much computation capability (CPU utilization) the application requires, and how 
+much TLP exists.
+
+\input{sum_app}
+
+Table~\ref{tab:summary} presents the utilization and TLP for our benchmark applications in
+different phases. For each phase of an application, three numbers are shown. Firstly,
+CPU utilization is an average utilization for two cores during the phase. Secondly, 
+length shows the portion of execution time for each phase. The third low, the number of
+active threads presents the available parallelism. For the responsive and interactive 
+phases, a phase is further decomposed into a portion of the phase with and without 
+user interactions. In interactive phases, the touch-based decomposition exhibit little difference.
+
+In the table, the first four applications exhibit interactive phases, when CPUs are active
+even without user touch events. 
+The rest of applications actively use CPUs only for
+setup phases, and for processing user touch events.
+Across all the applications, setup phases exhibit high CPU utilization, although the percentage
+for the length is relatively small, as the setup phases occur infrequently and their lengths are short.
+
+The available TLP is in general small for most of the applications. 
+Some applications have more than one active threads, although the average utilization on both cores are
+relatively small under 50-60\%. Active power management must lower the clock frequency to match the
+low utilization. However, whether both cores are used with low clock frequency is highly dependent upon
+the TLP load balance between the two cores, since the frequency of each core cannot be changed independently.
+
+
+

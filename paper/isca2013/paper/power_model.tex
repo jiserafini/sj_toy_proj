@@ -1,0 +1,42 @@
+\subsection{CPU Power Model}
+
+Based on the linear power increase with utilization at the same frequency,
+we construct a simple utility-based power model. A similar model
+has been used in several other prior studies~\cite{isca11DVFS, VMpower}.
+The power consumption of CPU is composed of the static and dynamic power,
+and also the power can be consumed either by the shared components and processor cores.
+
+The following equation simply represents the static and dynamic
+power consumed by the shared components and multiple cores.
+
+\begin{center}
+\vspace{-0.05in}
+$Power_{CPU} = S_{shared} + D_{shared} + \sum_{i=i}^{N} (S_{core_i} + D_{core_i})$
+\vspace{-0.05in}
+\end{center}
+
+$S$ and $D$ denote the static and dynamic power respectively, and $N$ is the number of power-supplied cores. 
+Note that a core can be powered-off by the hot-pluging technique.
+
+The dynamic power of each core is proportional to the core utilization,
+and the dynamic power of the shared component is proportional to the sum
+of utilizations of all the active cores. 
+Since the static power of each core should be equal ($S_{core}$),
+the power consumption can be modeled as the following equation.
+In the equation, the dynamic power of the shared components is
+merged with the dynamic power of cores.
+
+\begin{center}
+\vspace{-0.05in}
+$Power_{CPU} = S_{shared} + N * S_{core} + \sum_{i=i}^{N} \alpha_i * Utilization_i$
+\vspace{-0.05in}
+\end{center}
+
+In this equation, there are three constants: $S_{shared}$, $S_{core}$, and $\alpha_i$.
+As shown in Figure~\ref{fig:util_power}, $\alpha_i$ is directly related to the core frequency.
+If we have the constants for each supported frequency and the CPU utilization,
+we can construct a utility-based estimation model for the CPU power consumption.
+Using the results from figure\ref{fig:util_power}, we obtain the constants for each frequency.
+To validate the model accuriacy, the dotted line of figure\ref{fig:util_power} shows the 
+estimated power consumption.
+The average error ratio is 0.27\% and the trends are successfully estimated.

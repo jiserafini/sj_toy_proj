@@ -1,0 +1,55 @@
+\documentclass[pageno]{jpaper}
+
+%replace XXX with the submission number you are given from the ISCA submission site.
+\newcommand{\iscasubmissionnumber}{155}
+
+\usepackage[normalem]{ulem}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+%\usepackage{algpseudocode}
+
+\begin{document}
+
+\title{TLP-Aware Power Management for Interactive Mobile Applications}
+
+\date{}
+\maketitle
+
+\thispagestyle{empty}
+
+\input{abstract}
+
+% 1 Intro.
+\input{01_intro}
+
+% 2 Mobile Power Behaviors
+
+% 2.1 CPU Power
+\input{021_cpu_power}
+
+% 2.2 Utilization and Power managenent
+\input{022_util_power_management}
+
+% 3. TLP Behaviros of Mobile Applications
+\input{03_TLP_behavior}
+
+% 4. TLP-aware/Phase-aware DVFS
+\input{04_TLP_Phase_aware_DVFS}
+
+
+% 5. Result
+\input{05_results}
+
+\input{related}
+
+\input{conclusion}
+
+%\bstctlcite{bstctl:etal, bstctl:nodash, bstctl:simpurl}
+\bibliographystyle{IEEEtranS}
+\bibliography{references}
+
+\end{document}
+

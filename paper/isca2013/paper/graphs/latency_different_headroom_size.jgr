@@ -1,0 +1,26 @@
+newgraph
+
+xaxis
+	min 0.5 max 4.5
+	no_draw_hash_marks
+	no_auto_hash_labels
+	size 7
+yaxis
+	min 70 max 115
+	hash 10 hash_labels fontsize 17
+	size 4
+
+	newcurve marktype x linetype solid
+		pts 1 	74.6
+			2	88.6
+			3	102.5
+			4	110.6
+
+newstring hjc vjc x 1 y 68 fontsize 17 font Helvetica : 80%
+newstring hjc vjc x 2 y 68 fontsize 17 font Helvetica : 85%
+newstring hjc vjc x 3 y 68 fontsize 17 font Helvetica : 90%
+newstring hjc vjc x 4 y 68 fontsize 17 font Helvetica : 95%
+
+newstring hjc vjc x 0.1 y 95 rotate 90 fontsize 22 font Helvetica : latency(msec)
+newstring hjc vjc x 2.5 y 63 fontsize 22 font Helvetica : UP Threshold
+

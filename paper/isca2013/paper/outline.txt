@@ -1,0 +1,68 @@
+
+1. Intro.
+
+2. Mobile Powr Behaviors
+
+2.1 CPU Power
+- Util, freq, # of cores - Complete
+/* - May be able to use memory-intensive applications (?) future work */
+---> power model
+
+- Hot Pluggins latency vs powor
+- latency, DVFS, hot pluggins, idle mode (?) - Complete
+- iso-preformance power curve (perfect parallelism) - Complete
+
+
+2.2. Utilization and Power Management
+
+- on-demand power managmenet + hot-pluggin
+
+
+3. TLP Behavior of Mobile Applications
+
+
+- Phase Definition
+
+- Per-phase utilization graph?
+
+- Available Parallelism 
+
+(Active threads --> )
+
+- Dominant threads (utilization %)
+
+
+--> different utilization behaviors for three phases
+--> imperfect parallelism
+--> dominant threads
+
+4. TLP-aware/Phase-aware DVFS
+
+1) DT-aware scheduling
+-> balanced utlization
+--> DT --> less util fluctuation
+
+2) Phase-aware UP-threshold 
+
+--> variance
+
+3) TLP-aware Packing 
+
+---> power model
+
+5. Results
+
+Power
+	- Interactive application - Complete
+	- Responsive application
+
+Energy
+	- Responsive application
+
+ED^2P (responsive)
+	- Responsive application
+
+UX user study
+	- Interactive application
+
+6. prior work 

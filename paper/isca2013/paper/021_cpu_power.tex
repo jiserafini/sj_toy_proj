@@ -1,0 +1,95 @@
+\section{The Power Behaviors of Mobile Platforms}
+
+In this section, we first measure and analyze the power consumption characteristics of mobile platforms with
+various frequencies and utilization. We use the measured power data to construct a utility-based power model.
+Secondly, we discuss the current power management techniques based on CPU utilization.
+
+\subsection{CPU Power Characteristics}
+
+To analyze the power consumption of multi-core smartphones, we use a state-of-a-art smart phone - Galaxy S3 - as our target device.
+It has the Exynos 4412 CPU which includes four ARM Cortex-A9 cores, and runs Android 4.0.4 with Android kernel 3.0.15.
+Exynos 4412 has 13 frequency levels from 200MHz to 1.4GHz and the detailed frequency and its voltage levels are shown in
+Figure~\ref{fig:voltage}. Note that the voltage does not increase linearly with the frequency increase.
+To measure the power consumption, Monsoon power meter is used, and the measured power is 
+the whole system power.
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/freq_voltage.eps, width=7cm}
+\vspace{-0.2in}
+\end{center}
+\caption{Voltages for different frequencies, normalized to the voltage at 200MHz}
+\label{fig:voltage}
+\end{figure}
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/power_util_consumption.eps, width=8cm}
+\vspace{-0.1in}
+\end{center}
+\caption{Power consumption with various CPU utilization and frequency settings}
+\label{fig:util_power}
+\end{figure}
+
+In this section, we first show how the core clock frequency and utilization affect the actual power
+consumption of a quad-core processor used in the target smartphone. 
+We use a micro-benchmark, which continuously uses CPU resources extensively to fully utilize CPUs and has high instruction
+throughput per cycle. The benchmark can adjust CPU utilization by pausing the execution periodically. 
+For this analysis, we vary three factors. Firstly, core clock frequencies are varied with DVFS from
+the minimum 200MHz to the maximum 1.4GHz. Secondly, we vary the utilization of CPUs by forcing
+the micro-benchmarks to pause periodically. The interactive
+applications for smartphones commonly exhibit less than 100\% utilization for CPUs with 
+a sequence of a short execution and idle period. 
+We show how varying utilization changes the effect of DVFS on the system power.
+Finally, we vary the number of active cores in the system.
+
+Figure~\ref{fig:util_power} compares the measured power with different frequencies and utilizations with
+one and four active cores. For the one-core configuration, the other three cores are turned off.
+Firstly, as the utilization increases, the power increase is much higher
+with higher clock frequencies than with lower clock frequencies. The system power is much more sensitive to
+utilization when the clock frequency of cores is high.
+Secondly, for each frequency level, the power increases almost linearly with the increase of utilization.
+We will construct of a simple linear utility-based power model, which we will use to select an optimal
+number of active cores for power management.
+
+Thirdly, with low clock frequencies,
+multiple cores do not consume significantly higher power than a single core with the same frequency, even under high utilization.
+However, as the clock frequency increases, four cores consume almost four times power from a single core with
+the same frequency. Confirming the common understanding of the energy efficiency of exploiting parallelism, 
+using multiple low frequency cores provides better energy efficiency than a single core with high frequency. 
+Figure~\ref{fig:1cpu_vs_2cpu} emphasizes the benefit of using low frequency multi-cores than
+a single core with a high frequency. 
+
+\begin{figure}[bt]
+\begin{center}
+\epsfig{figure=graphs/iso_perform_power.eps, width=7cm}
+%\vspace{-0.2in}
+\end{center}
+\caption{iso-performance power consumption varying CPU setting}
+\vspace{-0.1in}
+\label{fig:1cpu_vs_2cpu}
+\end{figure}
+
+In Figure~\ref{fig:1cpu_vs_2cpu}, each section shows three different core and frequency settings
+for the same performance goal. In this comparison, we assume an ideal parallelism, where
+a task can be divided into multiple cores with perfect scaling. Furthermore, we also assume
+that the application performance is proportional to the clock frequency.
+For the three different performance goal, using as many cores with the lowest possible
+frequency as possible, provide the best energy efficiency. The frequency should be 
+lowered to set the utilization to 100\%. For the first performance goal,
+using two cores at 1.2GHz consumes 50\% more power than using four cores at 600MHz with
+100\% utilization 
+However, such a power management for spreading computation to multiple cores as evenly as possible, depends
+on the available TLP and also how each thread uses CPU resources. 
+
+A strategy of using cores and DVFS can be inferred from the aforementioned analysis.
+Firstly, the clock frequency must be lowered to the point where the utilization is close to 100\%.
+If a balanced TLP is available, using two cores with a half clock frequency consume less power than
+a single core. However, if TLP is unbalanced, using both cores may not always provide energy
+efficiency, since the current mobile multi-cores often do not support per-core DVFS. Therefore,
+the clock frequency must be adjusted, and cores can be turned on or off, so that
+the utilization in both cores is closed to equally 100\%.
+
+\input{power_model}
+
+\input{exynos4412_latency}

@@ -1,0 +1,37 @@
+\subsection{Methodology}
+In this section, we describe our experimental methodology. 
+Our target device is a smart phone which has the Exynos4412 CPU with four cores.
+The device runs the Android 4.0.4 operating system which includes Dalvik Virtual Machine (VM). 
+All applications run on an instance of their Dalvik VM. 
+The Moonsoon power meter measures the power consumption for the whole system that uses a single lithium (Li) battery. 
+To evaluate the effectiveness of our power management scheme, we use power, energy, and $ED^2P$ (Energy*Delay*Delay) metrics to assess
+the differnt aspects of the proposed schemes.
+
+Although, for the benchmark application shown in Table~\ref{tab:app_summary}, we measure the power consumption, the execution
+delay is measured only for the responsive applications. The execution time of an interactive application is determined by
+how long a user uses the application, and it is not directly affected by CPU performance. Instead, if the performance
+is degraded, the user will perceive the slowdown of the execution, for example slow changes of game scenes etc.
+In the paper, to show that the proposed scheme does not incur any perceivable performance degradation, we 
+conduct a user study with a 13 user sample for the four benchmark applications with interactive phases.
+
+For the responsive applications, we define a delay as the time period from the initation of a user input to the completion
+of the initiated job. As the delay is shortened, the processor can become idle sooner, reducing the CPU energy.
+To measure the delay for the web browser and mobile chrome, 
+we use BBench which is a web-page rendering benchmark with 11 of the popular sites such as Amazon, BBC, and eBay etc \cite{characterinteractive}. 
+The BBench shows page rendering time for each of the pages. 
+To measure the delay for the other responsive applications in a repeatable manner, we use the MonkeyRunner tool which 
+provides the emulation and automation of diverse user actions such as touch, drag, etc \cite{monkeyrunner}.
+The Google Maps for the android application selects search button, types a popular city address, and get directions. 
+The search is repeated 5 times with different city addresses. 
+The photo editor application selects one of photos, hits the touch effect button, and apply different 12 effects. 
+The ezPDF Reader opens different 8 files with the pdf file format.
+
+We evaluate three configurations, including dominant thread scheduling ({\tt DT scheduling}), 
+phase-aware headroom adjustment ({\tt phase-aware DVFS}), and thread packing ({\tt packing}). The baseline system uses
+the on-demand governor, and all the results are normalized to those with the baseline configuration. 
+
+%we start the real mobile application applied the MonkeyRunner which emulated user diverse action and automated a series of user interaction
+%for example, typing a specific city address, touching a button to enter next step, and dragging the touch screen. 
+%Third, the application runs by user interaction, step by step, when CPUs become idle state. Finally, 
+%all of interactive action is finished and display execution delay of the application.
+

@@ -1,0 +1,101 @@
+\section{Introduction}
+
+Although smartphones dominate mobile platforms, 
+the primary factor limiting their mobility is the energy efficiency and thus the battery 
+life. Among the components in the smartphones, processors have been considered to be one of the top two power-hungry
+components, along with the display device~\cite{smartphonepower,intothewild}. Meanwhile, the processors for smartphones have 
+evolved into multi-cores, making the exploitation of thread-level parallelism (TLP) critical 
+for the performance and energy efficiency~\cite{desktopTLP}. To fully utilize the potential benefit of multi-cores, and 
+to improve the energy efficiency, it is critical to understand the behaviors of smartphone applications for their
+available TLP. 
+
+However, such smartphone applications exhibit quite different behaviors from the traditional CPU benchmark applications
+used for servers and desktops. Their executions are highly dependent upon the interactions with users, and the
+power consumption behaviors are also affected by user interactions. Although the importance of understanding such
+interactive applications has been growing, there  have been a limited number of studies on the behavior of 
+smartphone applications~\cite{intothewild, characterinteractive}. 
+In this paper, we first characterize the parallelism and CPU utilization behaviors of smartphone applications.
+Using a commercial smartphone platform with a quad core processor, 
+this paper investigates the thread-level parallelism (TLP) and 
+CPU utilization, which are directly related to the power management with dynamic voltage and frequency scaling (DVFS) and dynamic core plug-ins~\cite{packandcap}.
+
+To characterize the TLP behavior, we use user interaction as a delimiting factor to identify phases 
+in interactive applications. We classify execution phases into two main phases, {\it interactive}, 
+and {\it responsive}.
+In the interactive phase, the application continuously uses some CPU resources, maintaining
+some level of CPU utilization, while the user may change
+the execution path. In the responsive phase, the application uses CPU resources for a short period
+time only after a user input.
+Although an application can exhibit both interactive and responsive phases, most of the common
+mobile applications are dominated by only one of the two phases.
+
+Although the two phases exhibit different CPU usage patterns, TLP is still limited in
+mobile platforms with a relative small number of active threads. Furthermore, the CPU utilization 
+is also often much lower than the maximum CPU capability with the highest clock frequency. 
+Among the active threads, applications often exhibit the heterogeneity of threads, with a thread
+accounting for a significant portion of the overall CPU utilization, which we call a {\it dominant thread}.
+Although many threads become active during interactive or responsive phases, the majority of them
+use CPU for a very short period of time. Only one or two thread per application 
+maintain CPU utilization at a certain level.
+
+Since the CPU utilization is relatively low in interaction-oriented mobile applications, the 
+current DVFS-based power management scheme reduces clock frequencies to minimize unused cycles. 
+At the same time, the power management scheme must not affect the users' perception on system performance and 
+interactivity. Therefore, the current power management scheme, without considering the requirement
+of different phases, often uses a conservative frequency management with a large headroom 
+for CPU computational capacity. The current management schemes determine the number of active cores
+solely based on the utilization level, without considering the number of active threads, and the 
+existence of dominant threads.
+
+Based on the TLP and interaction analysis for different phases of mobile applications, the paper proposes an improved
+DVFS-based power management. The proposed power management scheme uses three techniques,
+{\it dominant thread (DT) aware scheduling}, {\it phase-aware headroom adjustment}, and {\it thread packing} 
+to improve energy efficiency without incurring any perceived performance 
+degradation for mobile applications.
+The DT-aware scheduling identifies a dominant thread and prioritizes it to a dedicated core, since
+the performance of the dominant thread often determines the overall interactivity perceived by the user.
+The phase-aware headroom adjustment dynamically determines the frequency headroom when
+the clock frequency is changed for adjusting CPU capability. Depending on phase classification,
+the headroom is adapted to minimize the wasted CPU capacity, instead of using a fixed headroom
+for the current conservative schemes.
+The thread packing finds the optimal number of active cores, and assign threads to maximize
+the energy efficiency. After assigning a dominant thread to a fixed core,
+the rest of non-dominant threads are packed to an optimal number of active cores with the best energy
+efficiency. 
+
+The main contributions of this paper are as follows.
+
+\begin{itemize}
+
+\item This paper presents an in-depth analysis of thread-level parallelism in a popular mobile platform. Using
+phase classification, the paper provides available parallelism and CPU utilization characteristics of threads, showing
+the existence of dominant threads in common mobile applications. This paper is one of the first studies to analyze 
+the TLP of interactive mobile applications.
+
+\item The paper proposes a TLP-aware scheduling scheme to improve the energy efficiency of mobile platforms. The proposed
+schemes exploit the heterogeneous CPU utilization behaviors among active threads, and prioritize a dominant thread.
+Based on a power model, it identifies the best number of active cores, packing or unpacking non-dominant threads
+to the cores.
+
+\item The paper proposes a dynamic adjustment of frequency headroom used by the power governor  to reduce unnecessary 
+headroom for DVFS. Unlike the prior scheme, the dynamic adjustment of headroom minimizes unnecessary increases
+of clock frequency to improve system responsiveness.
+
+\end{itemize}
+
+The rest of the paper is organized as follows.
+Section 2 presents our analysis of power behaviors of mobile platforms and current DVFS-based power management schemes.
+Section 3 characterizes the TLP behaviors and shows the dominant thread execution in a set of mobile applications.
+Section 4 presents an improvement power management with TLP-aware scheduling and phase-aware headroom adjustment.
+Section 5 presents the experimental results, and Section 6 concludes the paper.
+
+
+%This paper characterizes three different aspects of power behaviors in commercial smartphone platforms and 
+%their applications. Firstly, this study analyzes the actual power consumption of multi-cores used for
+%smartphones with varying clock frequencies and CPU utilization. We used two types of micro-benchmarks,
+%one for stressing CPUs and the other for stressing the memory system. The analysis shows how the 
+%current multi-cores and their support for dynamic voltage and frequency scaling (DVFS) consume power 
+%with the two extreme cases of application types.
+
+%Gutierrez et al. showed the characteristics of smartphone applications, focusing their micro-architectural
+%aspects~\cite{characterinteractive}. 

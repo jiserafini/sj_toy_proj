@@ -1,0 +1,7 @@
+[Requried library]
+	- python-matplotlib
+	- e.g. sudo apt-get install python-matplotlib
+
+
+[Make graph]
+	- Just run python script

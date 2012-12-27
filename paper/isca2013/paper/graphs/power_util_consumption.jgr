@@ -1,0 +1,239 @@
+newgraph
+
+xaxis
+	min -10 max 120
+	no_draw_hash_marks
+	no_auto_hash_labels
+yaxis
+	min 0 max 2800
+	hash 500 mhash 10
+	hash_labels fontsize 13
+
+
+newcurve linetype solid marktype none pts -10 2800 120 2800
+
+	newcurve marktype circle linetype solid label : 1.4GHz
+		pts		0 387.08
+				25 556.35
+				50 707.84
+				75 827.34
+				100 991.49
+
+	newcurve marktype cross cfill 1 1 1 linetype solid label : 1.2GHz
+		pts		0 349.93
+				25 466.11
+				50 582.28
+				75 674.16
+				100 788.48
+
+	copycurve marktype x label : 1GHz
+		pts		0 342.15
+				25 417.11
+				50 498.66
+				75 563.73
+				100 634.21
+
+	copycurve marktype triangle label : 800MHz
+		pts		0 286.02
+				25 340.29
+				50 393.23
+				75 437.42
+				100 487.31
+				
+	copycurve marktype diamond label : 600MHz
+		pts		0 278.49
+				25 315
+				50 349.46
+				75 392.33
+				100 417.89
+
+	newcurve marktype circle cfill 1 1 1 linetype solid label : 400MHz
+		pts		0 267.77
+				25 289.94
+				50 317.84
+				75 342.97
+				100 354.28
+
+	newcurve marktype box linetype solid label : 200MHz
+		pts		0 263.39
+				25 275.28
+				50 290.56
+				75 299.8
+				100 308.43
+	
+	newcurve marktype circle linetype dotted
+		pts		0   387.1 
+				25  530.9 
+				50  674.7 
+				75  818.5 
+				100 962.3
+
+	newcurve marktype cross cfill 1 1 1 linetype dotted
+		pts		0   349.9	
+				25  453.1	
+				50  556.3	
+				75  659.5	
+				100 762.7
+
+	copycurve marktype x linetype dotted
+		pts		0   342.2	
+				25  414.1	
+				50  486	
+				75  557.9	
+				100 629.8
+	
+	copycurve marktype triangle linetype dotted
+		pts		0   286	
+				25  331.4
+				50  376.8
+				75  422.2
+				100 467.6
+
+	copycurve marktype diamond linetype dotted
+		pts		0   278.5	
+				25  313.7	
+				50  348.9	
+				75  384.1	
+				100 419.3
+
+	newcurve marktype circle cfill 1 1 1 linetype dotted
+		pts		0   267.8
+				25  290	
+				50  312.2
+				75  334.4
+				100 356.6
+
+	newcurve marktype box linetype dotted
+		pts		0   263.4 
+				25  275.5 
+				50  287.6 
+				75  299.7 
+				100 311.8
+
+	legend defaults vjt x 0 y 2500 fontsize 15 font Helvetica
+
+	newstring hjc vjc x 50 y 100 fontsize 15 font Helvetica : 1 Core
+	newstring hjc vjt x 0 y -40 fontsize 15 font Helvetica : 0%
+	newstring hjc vjt x 25 y -40 fontsize 15 font Helvetica : 25%
+	newstring hjc vjt x 50 y -40 fontsize 15 font Helvetica : 50%
+	newstring hjc vjt x 75 y -40 fontsize 15 font Helvetica : 75%
+	newstring hjc vjt x 100 y -40 fontsize 15 font Helvetica : 100%
+
+	newstring hjc vjc x -40 y 1500 rotate 90 fontsize 17 font Helvetica : Power (mW)
+copygraph
+x_translate 3
+
+yaxis
+	no_draw_hash_marks
+	no_draw_hash_labels
+	no_draw_axis_label
+
+newcurve linetype solid marktype none pts -10 2800 120 2800
+newcurve linetype solid marktype none pts 120 0 120 2800
+	
+	newcurve marktype box linetype solid label : 200MHz
+		pts 	0 276.2	
+				25 322.68	
+				50 370.59	
+				75 406.95	
+				100 426.97
+
+	newcurve marktype circle cfill 1 1 1 linetype solid label : 400MHz
+		pts		0 284.52	
+				25 356.73	
+				50 460.06	
+				75 529.85	
+				100 587.89
+
+	copycurve marktype diamond label : 600MHz
+		pts 	0 289.63	
+				25 417.87	
+				50 572.53	
+				75 663.83	
+				100 769.39
+
+	copycurve marktype triangle label : 800MHz
+		pts 	0 304.35	
+				25 460.41	
+				50 657.41	
+				75 780.53	
+				100 967.35
+
+	copycurve marktype x label : 1GHz
+		pts 	0 356.44	
+				25 613.91	
+				50 891.6	
+				75 1084.48	
+				100 1382.82
+
+	copycurve marktype cross label : 1.2GHz
+		pts 	0 390.22	
+				25 766.75	
+				50 1157.45	
+				75 1428.61	
+				100 1910.8
+
+	newcurve marktype circle linetype solid label : 1.4GHz
+		pts 	0 452.51
+				25 922.64	
+				50 1479.31	
+				75 1923.08	
+				100 2733.99
+    newcurve marktype box linetype dotted
+	    pts     0    276.3
+				25   324.7
+				50   373.1
+				75   421.5
+				100  469.9
+
+	newcurve marktype circle cfill 1 1 1 linetype dotted
+	    pts     0   284.6
+	            25  373.4
+	            50  462.2
+	            75  551
+	            100 639.8
+
+    copycurve marktype diamond linetype dotted
+		pts     0   289.6
+				25  430.4
+				50  571.2
+				75  712
+				100 852.8
+
+	copycurve marktype triangle linetype dotted
+		pts     0   304.3
+				25  485.9
+				50  667.5
+				75  849.1
+				100 1030.7
+
+	copycurve marktype x linetype dotted
+		pts     0   356.6
+				25  644.2
+				50  931.8
+				75  1219.4
+				100 1507
+
+	newcurve marktype cross cfill 1 1 1 linetype dotted
+		pts     0   391
+				25  803.8
+				50  1216.6
+				75  1629.4
+				100 2042.2
+
+	newcurve marktype circle linetype dotted
+		pts     0    452.5
+				25   1027.7
+				50   1602.9
+				75   2178.1
+				100  2753.3
+
+	newstring vjc vjc x 50 y 100 fontsize 15 font Helvetica : 4 Cores
+	newstring hjc vjt x 0 y -40 fontsize 15 font Helvetica : 0%
+	newstring hjc vjt x 25 y -40 fontsize 15 font Helvetica : 25%
+	newstring hjc vjt x 50 y -40 fontsize 15 font Helvetica : 50%
+	newstring hjc vjt x 75 y -40 fontsize 15 font Helvetica : 75%
+	newstring hjc vjt x 100 y -40 fontsize 15 font Helvetica : 100%
+
+	legend off
+

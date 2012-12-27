@@ -1,0 +1,40 @@
+newgraph
+xaxis size 3.6 min 0 max 20 no_auto_hash_labels no_auto_hash_marks label font Helvetica fontsize 12
+yaxis size 1.8 min 0 max 2000 label font Helvetica fontsize 12 : Power (mW)
+
+newcurve linetype solid marktype none pts 0 2000 20 2000
+newcurve linetype solid marktype none pts 20 0 20 2000
+
+legend custom 
+
+newcurve marktype xbar marksize 1 fill 0 label x 3 y 1900 fontsize 9 font Helvetica hjl : 1 CPU 1GHz
+pts
+1	816.2  
+5	1118.17
+9	1383.81
+13	1656.55
+17	1825.42
+
+newcurve marktype xbar marksize 1 fill 0.5 label x 3 y 1770 fontsize 9 font Helvetica hjl : 1 CPU 800MHz
+pts
+2	806.81 
+6	1008.52
+10	1181.77
+14	1352.39
+18	1455.43
+
+newcurve marktype xbar marksize 1 fill 1.0 label x 3 y 1640 fontsize 9 font Helvetica hjl : 2 CPU 500MHz
+pts
+3	823.35 
+7	950.23 
+11	1163.26
+15	1333.05
+19	1412.64
+
+newstring fontsize 9 font Helvetica x 2  y -80 hjc vjc : 0%
+newstring fontsize 9 font Helvetica x 6  y -80 hjc vjc : 25% 
+newstring fontsize 9 font Helvetica x 10  y -80 hjc vjc : 50%
+newstring fontsize 9 font Helvetica x 14  y -80 hjc vjc : 75%
+newstring fontsize 9 font Helvetica x 18  y -80 hjc vjc : 100%
+
+newstring fontsize 12 font Helvetica x 10  y -280 hjc vjc : CPU Utilization

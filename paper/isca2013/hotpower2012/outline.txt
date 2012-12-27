@@ -1,0 +1,55 @@
+Title: ?
+
+
+1. Intro. (1 page)
+
+
+2. Mobile System Power Behaviors (0.7 page)
+
+[graph1]
+
+[graph2]
+
+[graph3]
+
+- 3 main messages
+- graphs???
+
+
+3. Interative application behaviors (1.5 pages)
+
+- benchmmark table
+- figure???? 
+
+angry 
+3.3 core, utilization, (power)
+
+[graph1/2/3]
+
+browser
+[graph1/2/3]
+
+BIG table 
+
+
+3.1 Interaction and Utilization
+
+- graph??
+
+3.2 TLP 
+
+- graph??
+
+
+4. current energy management behavior (0.5)
+
+[graph1]
+
+- interactive
+- hot-plug
+
+
+5. Sugguestion (0.5)
+
+
+

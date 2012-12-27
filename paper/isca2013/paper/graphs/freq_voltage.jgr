@@ -1,0 +1,46 @@
+newgraph
+xaxis 
+	size 3.6 min 0 max 13
+	no_auto_hash_labels 
+	no_auto_hash_marks 
+	label font Helvetica fontsize 12
+yaxis
+	size 1.8 
+	min 1 max 1.5
+	hash 0.1
+	hash_labels fontsize 9
+	label font Helvetica fontsize 12 : Voltage Normalized\
+to 200MHz(%)
+
+newcurve linetype solid marktype none pts 0 1.5 13 1.5
+newcurve linetype solid marktype none pts 13 1 13 1.5
+
+newcurve marktype xbar marksize 1 fill 1
+pts
+1	1
+2	1.028
+3	1.042
+4	1.056
+5	1.069
+6 	1.083
+7	1.139
+8	1.194
+9	1.250
+10	1.306
+11	1.375
+12	1.417
+
+newstring fontsize 9 font Helvetica x 1 y 0.95 rotate 45 hjc vjc : 300
+newstring fontsize 9 font Helvetica x 2 y 0.95 rotate 45 hjc vjc : 400
+newstring fontsize 9 font Helvetica x 3 y 0.95 rotate 45 hjc vjc : 500
+newstring fontsize 9 font Helvetica x 4 y 0.95 rotate 45 hjc vjc : 600
+newstring fontsize 9 font Helvetica x 5 y 0.95 rotate 45 hjc vjc : 700
+newstring fontsize 9 font Helvetica x 6 y 0.95 rotate 45 hjc vjc : 800
+newstring fontsize 9 font Helvetica x 7 y 0.95 rotate 45 hjc vjc : 900
+newstring fontsize 9 font Helvetica x 8 y 0.95 rotate 45 hjc vjc : 1000
+newstring fontsize 9 font Helvetica x 9 y 0.95 rotate 45 hjc vjc : 1100
+newstring fontsize 9 font Helvetica x 10 y 0.95 rotate 45 hjc vjc : 1200
+newstring fontsize 9 font Helvetica x 11 y 0.95 rotate 45 hjc vjc : 1300
+newstring fontsize 9 font Helvetica x 12 y 0.95 rotate 45 hjc vjc : 1400
+
+newstring fontsize 12 font Helvetica x 6.5 y 0.88 hjc vjc : Frequency(MHz)

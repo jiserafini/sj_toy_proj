@@ -1,0 +1,50 @@
+newgraph
+xaxis 
+	size 3.6 min 0 max 20
+	no_auto_hash_labels 
+	no_auto_hash_marks 
+	label font Helvetica fontsize 12
+yaxis
+	size 1.8 
+	min 0 max 13
+	label font Helvetica fontsize 12 : Energy saving\
+Normalized to Ondemand(%)
+
+legend custom
+
+newcurve marktype xbar marksize 1 fill 0 label x 13 y 13.5 fontsize 9 font Helvetica hjl : DT Scheduling
+pts
+1	8.80
+5	2.80
+9	4.28
+13	2.83
+17	3.15
+
+newcurve marktype xbar marksize 1 fill 0.5 label x 13 y 12 fontsize 9 font Helvetica hjl : DT Scheduling+\
+Phase-aware DVFS
+pts
+2	5.04
+6	2.40
+10	0.08
+14	5.03
+18	2.75
+
+newcurve marktype xbar marksize 1 fill 1 label x 13 y 9.5 fontsize 9 font Helvetica hjl : DT Scheduling+\
+Phase-aware DVFS+\
+Packing/Unpacking
+pts
+3	9.75
+7	4.66
+11	3.47
+15	6.32
+19	4.03
+
+newstring fontsize 9 font Helvetica x 2 y -1.5 hjc vjc : Photo\
+Editor
+newstring fontsize 9 font Helvetica x 6 y -1.5 hjc vjc : Google\
+Map
+newstring fontsize 9 font Helvetica x 10 y -1.5 hjc vjc : ezPDF\
+Reader
+newstring fontsize 9 font Helvetica x 14 y -1.5 hjc vjc : Browser
+newstring fontsize 9 font Helvetica x 18 y -1.5 hjc vjc : Mobile\
+Chrome

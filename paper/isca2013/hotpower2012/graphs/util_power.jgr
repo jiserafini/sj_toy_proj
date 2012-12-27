@@ -1,0 +1,122 @@
+newgraph
+xaxis size 3.6 min 0 max 20 no_auto_hash_labels no_auto_hash_marks label font Helvetica fontsize 12
+yaxis size 1.8 min 0 max 4500 label font Helvetica fontsize 12 : Power (mW)
+
+newcurve linetype solid marktype none pts 0 4500 20 4500
+newcurve linetype solid marktype none pts 20 0 20 4500
+newcurve linetype dotted marktype none pts 10 0 10 4500
+
+legend custom 
+
+(* 1cpu					
+	200MHz	500MHz	800Mhz	1GHz	1.2GHz
+	0	789.41	793.67	806.81	816.2	828.85
+	25	843.09	906.69	1008.52	1118.17	1282.04
+	50	877.57	988.84	1181.77	1383.81	1671.99
+	75	906.4	1083.85	1352.39	1656.55	2029.47
+	100	924.2	1126.75	1455.43	1825.42	2341.79 *)	
+
+newcurve linetype solid marktype diamond marksize 0.3 fill 1.0 label x 3 y 3200 fontsize 9 font Helvetica hjl : 200MHz
+pts
+1	789.41	
+3	843.09	
+5	877.57	
+7	906.4	
+9	924.2	
+
+newcurve linetype solid marktype x marksize 0.3 fill 1.0 label x 3 y 3500 fontsize 9 font Helvetica hjl : 500MHz
+pts
+1	793.67 
+3	906.69 
+5	988.84 
+7	1083.85
+9	1126.75
+
+newcurve linetype solid marktype triangle marksize 0.3 fill 1.0 label x 3 y 3800 fontsize 9 font Helvetica hjl : 800MHz
+pts
+1	806.81 
+3	1008.52
+5	1181.77
+7	1352.39
+9	1455.43
+
+newcurve linetype solid marktype box marksize 0.3 fill 1.0 label x 3 y 4100 fontsize 9 font Helvetica hjl : 1GHz
+pts
+1	816.2  
+3	1118.17
+5	1383.81
+7	1656.55
+9	1825.42
+
+newcurve linetype solid marktype circle marksize 0.3 fill 1.0 label x 3 y 4400 fontsize 9 font Helvetica hjl : 1.2GHz
+pts
+1	828.85
+3	1282.04
+5	1671.99
+7	2029.47
+9	2341.79
+
+(* 2cpu					
+	200MHz	500MHz	800Mhz	1GHz	1.2GHz
+	0	812.08	823.35	843.15	850.96	882.23
+	25	879.69	950.23	1154.54	1370.49	1641.07
+	50	948.13	1163.26	1505.26	1890.1	2382.6
+	75	1006.29	1333.05	1845.26	2411.7	3151.64
+	100	1030.21	1412.64	2076.67	2851.05	4039.42 *)
+
+newcurve linetype solid marktype diamond marksize 0.3 fill 1.0
+pts
+11	812.08 
+13	879.69 
+15	948.13 
+17	1006.29
+19	1030.21
+
+newcurve linetype solid marktype x marksize 0.3 fill 1.0
+pts
+11	823.35 
+13	950.23 
+15	1163.26
+17	1333.05
+19	1412.64
+
+newcurve linetype solid marktype triangle marksize 0.3 fill 1.0
+pts
+11	843.15 
+13	1154.54
+15	1505.26
+17	1845.26
+19	2076.67
+
+newcurve linetype solid marktype box marksize 0.3 fill 1.0
+pts
+11	850.96 
+13	1370.49
+15	1890.1 
+17	2411.7 
+19	2851.05
+
+newcurve linetype solid marktype circle marksize 0.3 fill 1.0
+pts
+11	882.23
+13	1641.07
+15	2382.6
+17	3151.64
+19	4039.42 
+
+newstring fontsize 9 font Helvetica x 1  y -150 hjc vjc : 0%
+newstring fontsize 9 font Helvetica x 3  y -150 hjc vjc : 25% 
+newstring fontsize 9 font Helvetica x 5  y -150 hjc vjc : 50%
+newstring fontsize 9 font Helvetica x 7  y -150 hjc vjc : 75%
+newstring fontsize 9 font Helvetica x 9  y -150 hjc vjc : 100%
+newstring fontsize 9 font Helvetica x 11  y -150 hjc vjc : 0%
+newstring fontsize 9 font Helvetica x 13  y -150 hjc vjc : 25% 
+newstring fontsize 9 font Helvetica x 15  y -150 hjc vjc : 50%
+newstring fontsize 9 font Helvetica x 17 y -150 hjc vjc : 75%
+newstring fontsize 9 font Helvetica x 19 y -150 hjc vjc : 100%
+
+newstring fontsize 12 font Helvetica x 5  y 400 hjc vjc : 1 core
+newstring fontsize 12 font Helvetica x 15 y 400 hjc vjc : 2 cores 
+
+newstring fontsize 12 font Helvetica x 10  y -600 hjc vjc : CPU Utilization
+(* newstring fontsize 12 font Helvetica x 35  y 0.0 hjc vjc : # of fast cores / # of slow cores *)

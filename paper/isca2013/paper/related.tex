@@ -1,0 +1,40 @@
+\section{Related Work}
+
+There have been several recent studies for analyzing smartphone applications~\cite{anatomizing, WhySlowBrowser, tmapp, characterinteractive}.
+Some work focus on web-browsing applications, with automation of user inputs for deterministic analysis~\cite{anatomizing, WhySlowBrowser}.
+Issa et al. and Gutierrez et al. propose a benchmark suite for smartphones,
+and characterize their system and architectural behaviors~\cite{tmapp, characterinteractive}. 
+To find representative applications, the smartphone usage pattern has been studied~\cite{diversity,intothewild,diversebehavior}.
+The prior work log system activities for smartphones, to investigate the real world usage patterns.
+The analysis of TLP for interactive applications have been studied by Blake et al~\cite{desktopTLP}. They
+analyzed the available TLP for common desktop applications. We share a similar method to
+investigate the TLP of smartphone applications. However, unlike the desktop analysis,
+we emphasize the importance of interactive and responsive phases in mobile applications,
+and show the significant skewed resource usage among threads.
+
+Since the battery-life is a crucial problem of smartphones,
+the power consumption pattern of smartphone has been widely studied.
+Carroll and Gernot analyze a breakdown of power distribution of each component in smartphone~\cite{smartphonepower}.
+They show that the communication module and display consume a significant portion of power.
+There have been several studies to model the power consumption of mobile platforms.
+Shye et al.  propose per-component power estimation methods, using the linear regression to build a model~\cite{intothewild}.
+Yoon et al. proposes an energy metering framework for mobile platforms by monitoring kernel activities~\cite{AppScope}.
+Pathak et al. use system call tracing~\cite{powermodelsyscall} to model the power consumption.
+and some studies generate power model online using battery voltage sensors~\cite{selfconstructive, accurateonline}. 
+In our work, we use a simple CPU power model similar to the ones used by Ma et al. and Kansal etal~\cite{isca11DVFS, VMpower}.
+
+There have been a significant body of work for energy saving with the DVFS mechanism~\cite{micro06DVFS, decomposition, Koala, isca11DVFS, packandcap}. 
+Many studies target non-interactive server and desktop platforms with application continuously using CPUs with 100\% utilization.
+The studies maximizes the energy efficiency or the throughput under a power constraint.
+There are also DVFS mechanisms for interactive applications.
+\cite{transactionbased} distinguishes the interactive task from the background tasks,
+and keep user-perceived latency less than human-perceptual threshold.
+\cite{IADVS} aims at similar timing constraint, 
+while it is based on the fine-grained interaction history.
+\cite{intothewild} directly target the smartphone applications.
+They exploit the human perception study 
+which indicates that human hardly detect large changes in their surrounding environment.
+They down CPU frequency as slowly as human cannot detect, so that the energy is reduced while user rarely detect.
+Compared to them, our work exploits uneven thread level parallelism of smartphone applications.
+In addition, it keeps the CPU utilization under 100\%.
+Thus, the performance rarely degrades and so does the user responsiveness.

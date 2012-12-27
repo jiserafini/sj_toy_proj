@@ -1,0 +1,41 @@
+\section{Introduction}
+
+Although smartphones dominate mobile platforms, encroaching the turf of traditional computing platforms such
+as laptop and desktop systems, the primary factor limiting their mobility is the energy efficiency and thus the battery 
+life. Among the components in the smartphones, processors have been considered to be one of the top two power-hungry
+components, along with the display device~\cite{smartphonepower,intothewild}. Meanwhile, the processors for smartphones have 
+evolved into multi-cores, making the exploitation of thread-level parallelism (TLP) critical 
+for the performance and energy efficiency~\cite{desktopTLP}. To fully utilize the potential benefit of multi-cores, and 
+to improve the energy efficiency, it is critical to understand the behaviors of smartphone applications for their
+available TLP.
+
+However, such smartphone applications exhibit quite different behaviors from the traditional benchmark applications
+used for servers and desktops. Their executions are highly dependent upon the interactions with users, and the
+power consumption behaviors are also affected by user interactions. Although the importance of understanding such
+interactive applications has been growing, there  have been a limited number of studies on the behavior of 
+smartphone applications~\cite{intothewild, characterinteractive}.
+
+This paper characterizes three different aspects of power behaviors in commercial smartphone platforms and 
+their applications. Firstly, this study analyzes the actual power consumption of multi-cores used for
+smartphones with varying clock frequencies and CPU utilization. We used two types of micro-benchmarks,
+one for stressing CPUs and the other for stressing the memory system. The analysis shows how the 
+current multi-cores and their support for dynamic voltage and frequency scaling (DVFS) consume power 
+with the two extreme cases of application types.
+
+Secondly, we characterize the parallelism and CPU utilization behaviors of smartphone applications.
+Gutierrez et al. showed the characteristics of smartphone applications, focusing their micro-architectural
+aspects~\cite{characterinteractive}. This paper focuses on the thread-level parallelism (TLP) and 
+CPU utilization, which are directly related to the power management with DVFS and dynamic core plug-ins~\cite{packandcap}.
+We use user interaction as a delimiting factor to identify phases in interactive applications.
+Each application has different behaviors with user interactions through touch screen, and we show
+how TLP and utilization change differently for various application phases.
+
+Finally, we show how the state-of-art power management system in smartphones behaves with 
+the interactive applications. Such a power management system available in the current smartphone operating system
+attempts to minimize wasted cycles with DVFS. At the same time, the power management system must not affect the users' perception
+on system performance and interactivity. However, since the current multi-cores for smartphones do not support per-core
+DVFS due to the area limitation, the power management system may miss the opportunity to further 
+reduce the power consumption. This paper explores where the further opportunities for energy reduction exist with
+multi-core platforms and interactive applications.
+
+
